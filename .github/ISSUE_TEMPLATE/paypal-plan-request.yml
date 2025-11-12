@@ -1,5 +1,5 @@
 name: PayPal Payment / Plan Request
-about: Submit payment details so we can create an order and issue a license.
+description: Submit payment details so we can create an order and issue a license.
 title: "[PayLinkBridge] Payment Request — {plan} — {paypal_email}"
 labels: ["paylink-request"]
 body:
@@ -14,13 +14,15 @@ body:
           value: pro
         - label: Dev+ — Monthly subscription
           value: devplus
+    validations:
       required: true
 
   - type: input
     id: amount
     attributes:
       label: Amount
-      placeholder: 25.00
+      placeholder: "25.00"
+    validations:
       required: true
 
   - type: dropdown
@@ -32,25 +34,29 @@ body:
           value: AUD
         - label: USD
           value: USD
+    validations:
       required: true
 
   - type: input
     id: paypal_email
     attributes:
       label: PayPal email
-      placeholder: you@example.com
+      placeholder: "you@example.com"
+    validations:
       required: true
 
   - type: input
     id: fullName
     attributes:
       label: Full name
+    validations:
       required: true
 
   - type: input
     id: date_of_birth
     attributes:
       label: Date of birth (YYYY-MM-DD)
+    validations:
       required: true
 
   - type: textarea
@@ -61,8 +67,6 @@ body:
   - type: checkbox
     id: terms
     attributes:
-      label: Consent
-      options:
-        - label: I consent to verification and agree to the terms.
-          value: agree
+      label: I consent to verification and agree to the terms.
+    validations:
       required: true

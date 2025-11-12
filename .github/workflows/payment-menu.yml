@@ -10,20 +10,11 @@ jobs:
     if: contains(github.event.issue.labels.*.name, 'paylink-request')
     
     steps:
-      - name: Get domain from secrets or use default
-        id: domain
-        run: |
-          DOMAIN="${{ secrets.PAYLINK_DOMAIN }}"
-          if [ -z "$DOMAIN" ]; then
-            DOMAIN="https://checkout.example.com"
-          fi
-          echo "domain=$DOMAIN" >> $GITHUB_OUTPUT
-
       - name: Create Payment Menu Comment
         uses: actions/github-script@v7
         with:
           script: |
-            const domain = "${{ steps.domain.outputs.domain }}";
+            const serverUrl = "http://localhost:4000";
             const issue = context.issue;
 
             // build menu content safely to avoid YAML parsing issues
@@ -32,9 +23,9 @@ jobs:
               '',
               '| Plan | Price | Link |',
               '|------|-------|------|',
-              `| **Starter** | $10.00 AUD | [Pay Now](${domain}?plan=starter) |`,
-              `| **Basic** | $25.00 AUD | [Pay Now](${domain}?plan=basic) |`,
-              `| **Pro** | $99.00 AUD | [Pay Now](${domain}?plan=pro) |`,
+              `| **Starter** | $10.00 AUD | [Pay Now](${serverUrl}/web/checkout.html?plan=starter) |`,
+              `| **Basic** | $25.00 AUD | [Pay Now](${serverUrl}/web/checkout.html?plan=basic) |`,
+              `| **Pro** | $99.00 AUD | [Pay Now](${serverUrl}/web/checkout.html?plan=pro) |`,
               '',
               '### How it works:',
               '1. Click the "Pay Now" link for your desired plan',
