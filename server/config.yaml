@@ -1,0 +1,12 @@
+port: 4000
+currency: 'AUD'
+paypal:
+  env: 'sandbox'
+  plans:
+    pro:
+      price: 7.5
+      paypal_plan_id: 'P-REPLACE'
+    devplus:
+      price: 25
+      paypal_plan_id: 'P-REPLACE2'
+fee_percent: 2.5

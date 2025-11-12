@@ -1,0 +1,21 @@
+name: Payment Menu Handler
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  payment-menu:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Add Payment Menu
+        uses: actions/github-script@v6
+        if: contains(github.event.issue.body, 'payment') || contains(github.event.issue.title, 'Payment')
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: 'Payment Menu:\n\n- Starter Plan: $10.00\n- Basic Plan: $25.00\n- Pro Plan: $99.00\n\nVisit the checkout page to complete payment.'
+            })

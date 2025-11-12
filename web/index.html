@@ -1,0 +1,161 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Professional Checkout - Secure Payments</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://www.paypal.com/sdk/js?client-id=YOUR_CLIENT_ID&currency=AUD"></script>
+</head>
+<body>
+<nav class="navbar">
+  <div class="nav-container">
+    <h1 class="logo">PayLink</h1>
+    <ul class="nav-menu">
+      <li><a href="#checkout">Checkout</a></li>
+      <li><a href="#plans">Plans</a></li>
+      <li><a href="#github-requests">Request</a></li>
+      <li><a href="#faq">FAQ</a></li>
+    </ul>
+  </div>
+</nav>
+
+<main class="container">
+  <!-- Hero Section -->
+  <section class="hero">
+    <h1>Secure Payment Processing</h1>
+    <p>Fast, reliable, and secure checkout powered by PayPal</p>
+  </section>
+
+  <!-- Checkout Section -->
+  <section id="checkout" class="checkout-section">
+    <h2>Complete Your Payment</h2>
+    <div id="checkout-container">
+      <div id="payment-form" class="payment-card">
+        <div class="form-group">
+          <label for="plan">Select Plan:</label>
+          <select id="plan">
+            <option value="pro">Professional - $99.00/month</option>
+            <option value="basic" selected>Basic - $25.00/month</option>
+            <option value="starter">Starter - $10.00/month</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="email">Email Address:</label>
+          <input type="email" id="email" placeholder="your@email.com" required />
+        </div>
+        <div class="amount-display">
+          <span>Total: <strong id="amount-display">$25.00</strong></span>
+        </div>
+        <div id="paypal-button-container"></div>
+        <div id="checkout-status" class="status-message"></div>
+      </div>
+
+      <div id="result-section" class="payment-card result-hidden">
+        <h3>✅ Payment Successful</h3>
+        <div class="success-message">
+          <p>Thank you for your payment!</p>
+          <div class="license-box">
+            <label>Your License Key:</label>
+            <code id="license-display"></code>
+            <button onclick="copyLicense()" class="copy-btn">Copy License</button>
+          </div>
+          <div id="transaction-details"></div>
+        </div>
+        <button onclick="location.reload()" class="btn-primary">Make Another Payment</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Plans Section -->
+  <section id="plans" class="plans-section">
+    <h2>Pricing Plans</h2>
+    <div class="plans-grid">
+      <div class="plan-card">
+        <h3>Starter</h3>
+        <p class="price">$10.00</p>
+        <p class="period">/month</p>
+        <ul class="features">
+          <li>✓ Basic access</li>
+          <li>✓ Email support</li>
+          <li>✓ Community forum</li>
+        </ul>
+      </div>
+      <div class="plan-card featured">
+        <h3>Basic</h3>
+        <p class="price">$25.00</p>
+        <p class="period">/month</p>
+        <p class="badge">Most Popular</p>
+        <ul class="features">
+          <li>✓ Full access</li>
+          <li>✓ Priority support</li>
+          <li>✓ Advanced features</li>
+          <li>✓ API access</li>
+        </ul>
+      </div>
+      <div class="plan-card">
+        <h3>Professional</h3>
+        <p class="price">$99.00</p>
+        <p class="period">/month</p>
+        <ul class="features">
+          <li>✓ Everything in Basic</li>
+          <li>✓ 24/7 support</li>
+          <li>✓ Dedicated account</li>
+          <li>✓ Custom integration</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- GitHub Requests Section -->
+  <section id="github-requests" class="github-section">
+    <h2>Feature Requests & Support</h2>
+    <p>Have a feature request or need support? Create an issue on GitHub</p>
+    <div class="github-options">
+      <button onclick="openGitHubIssue('feature')" class="btn-secondary">📝 Request Feature</button>
+      <button onclick="openGitHubIssue('support')" class="btn-secondary">🆘 Get Support</button>
+      <button onclick="openGitHubIssue('payment')" class="btn-secondary">💳 Payment Issue</button>
+    </div>
+    <div id="github-status" class="github-status"></div>
+  </section>
+
+  <!-- FAQ Section -->
+  <section id="faq" class="faq-section">
+    <h2>Frequently Asked Questions</h2>
+    <div class="faq-container">
+      <div class="faq-item">
+        <h4>Is my payment secure?</h4>
+        <p>Yes! We use PayPal's industry-leading encryption and security protocols. Your payment information is never stored on our servers.</p>
+      </div>
+      <div class="faq-item">
+        <h4>What payment methods do you accept?</h4>
+        <p>We accept all major payment methods through PayPal, including credit cards, debit cards, and PayPal balance.</p>
+      </div>
+      <div class="faq-item">
+        <h4>Can I change my plan?</h4>
+        <p>Yes! You can upgrade or downgrade your plan anytime. Changes take effect immediately for upgrades or at the end of billing period for downgrades.</p>
+      </div>
+      <div class="faq-item">
+        <h4>What if I need a refund?</h4>
+        <p>Refund requests can be made within 30 days of purchase. Contact our support team for assistance.</p>
+      </div>
+      <div class="faq-item">
+        <h4>How do I access my license key?</h4>
+        <p>After payment, your license key is displayed immediately and also sent to your email address.</p>
+      </div>
+      <div class="faq-item">
+        <h4>Do you offer API access?</h4>
+        <p>Yes! Professional and Basic plan holders get full API access. See documentation for details.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>&copy; 2025 PayLink. All rights reserved. | <a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a></p>
+  </footer>
+</main>
+
+<script src="script.js"></script>
+</body>
+</html>

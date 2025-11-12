@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment Successful - PayLinkBridge</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    
+    .success-container {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      max-width: 500px;
+      width: 100%;
+      padding: 50px;
+      text-align: center;
+    }
+    
+    .success-icon {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, #10b981, #059669);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 30px;
+      font-size: 40px;
+    }
+    
+    h1 {
+      color: #003087;
+      margin-bottom: 10px;
+      font-size: 32px;
+    }
+    
+    .subtitle {
+      color: #666;
+      margin-bottom: 30px;
+      font-size: 16px;
+    }
+    
+    .license-section {
+      background: #f8f8f8;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 30px 0;
+    }
+    
+    .license-label {
+      color: #999;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 10px;
+    }
+    
+    .license-key {
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 15px;
+      font-family: 'Courier New', monospace;
+      font-size: 18px;
+      font-weight: 600;
+      color: #0070ba;
+      word-break: break-all;
+      margin-bottom: 15px;
+    }
+    
+    .copy-btn {
+      padding: 8px 16px;
+      background: #0070ba;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    
+    .copy-btn:hover {
+      background: #003087;
+    }
+    
+    .next-steps {
+      text-align: left;
+      background: #e3f2fd;
+      border-left: 4px solid #0070ba;
+      padding: 20px;
+      border-radius: 6px;
+      margin: 30px 0;
+    }
+    
+    .next-steps h3 {
+      color: #0070ba;
+      margin-bottom: 15px;
+      font-size: 16px;
+    }
+    
+    .next-steps ol {
+      margin-left: 20px;
+      color: #333;
+      line-height: 1.8;
+    }
+    
+    .next-steps li {
+      margin-bottom: 10px;
+    }
+    
+    .action-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 30px;
+    }
+    
+    .btn {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-block;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, #0070ba, #003087);
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0,112,186,0.3);
+    }
+    
+    .btn-secondary {
+      background: white;
+      border: 2px solid #0070ba;
+      color: #0070ba;
+    }
+    
+    .btn-secondary:hover {
+      background: #f0f9ff;
+    }
+    
+    .confirmation-sent {
+      background: #e8f5e9;
+      border: 1px solid #4caf50;
+      border-radius: 6px;
+      padding: 15px;
+      color: #2e7d32;
+      font-size: 14px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="success-container">
+    <div class="success-icon">✓</div>
+    <h1>Payment Successful!</h1>
+    <p class="subtitle">Your payment has been processed successfully</p>
+    
+    <div class="license-section">
+      <div class="license-label">Your License Key</div>
+      <div class="license-key" id="license-key">LIC-LOADING...</div>
+      <button class="copy-btn" onclick="copyLicense()">Copy License</button>
+    </div>
+    
+    <div class="next-steps">
+      <h3>Next Steps:</h3>
+      <ol>
+        <li>Check your email for confirmation and details</li>
+        <li>Save your license key in a safe place</li>
+        <li>Use your license key to activate your account</li>
+        <li>Enjoy your new plan!</li>
+      </ol>
+    </div>
+    
+    <div class="confirmation-sent">
+      📧 A confirmation email has been sent to your registered email address
+    </div>
+    
+    <div class="action-buttons">
+      <a href="/" class="btn btn-secondary">Back Home</a>
+      <a href="/checkout.html" class="btn btn-primary">Buy Another</a>
+    </div>
+  </div>
+  
+  <script>
+    function getLicenseFromURL() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('license') || localStorage.getItem('license') || 'NOT_FOUND';
+    }
+    
+    function copyLicense() {
+      const license = document.getElementById('license-key').textContent;
+      navigator.clipboard.writeText(license).then(() => {
+        const btn = event.target;
+        const originalText = btn.textContent;
+        btn.textContent = 'Copied!';
+        setTimeout(() => {
+          btn.textContent = originalText;
+        }, 2000);
+      });
+    }
+    
+    document.addEventListener('DOMContentLoaded', function() {
+      const license = getLicenseFromURL();
+      document.getElementById('license-key').textContent = license;
+    });
+  </script>
+</body>
+</html>
