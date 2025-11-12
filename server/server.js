@@ -10,6 +10,7 @@ import issueRouter from './issue-handler.js';
 import payoutsRouter from './payouts.js';
 import webhooksRouter from './webhooks.js';
 import payoutAdminRouter from './payout-admin.js';
+import customersRouter from './customers.js';
 
 dotenv.config();
 const app = express();
@@ -34,6 +35,7 @@ app.use('/', issueRouter);
 app.use('/', payoutsRouter);
 app.use('/', webhooksRouter);
 app.use('/', payoutAdminRouter);
+app.use('/', customersRouter);
 
 // admin simple route
 app.get('/server/admin', (req,res)=>{

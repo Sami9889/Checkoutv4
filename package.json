@@ -26,6 +26,7 @@
     "js-yaml": "^4.1.0",
     "multer": "^1.4.5-lts.1",
     "bcrypt": "^5.1.0",
-    "node-fetch": "^2.6.11"
+    "node-fetch": "^2.6.11",
+    "nodemailer": "^6.9.7"
   }
 }

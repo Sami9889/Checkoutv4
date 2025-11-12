@@ -64,9 +64,27 @@ body:
     attributes:
       label: Note / extra details
 
-  - type: checkbox
+  - type: checkboxes
     id: terms
     attributes:
-      label: I consent to verification and agree to the terms.
+      label: Consent & Agreement
+      options:
+        - label: I consent to payment processing and verify my details are correct
+          required: true
+        - label: I agree to the terms and conditions
+          required: true
+
+  - type: input
+    id: license_email
+    attributes:
+      label: Email for license delivery
+      placeholder: "license@example.com"
+      description: "License key will be sent to this email address"
     validations:
       required: true
+
+  - type: textarea
+    id: additional_info
+    attributes:
+      label: Additional notes or requests
+      placeholder: "Any special requests or notes about your order?"
