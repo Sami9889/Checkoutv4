@@ -1,0 +1,62 @@
+name: Payment Request
+about: Request a payment link for a plan. Use this form to create a structured payment request that the automation and maintainers will process.
+title: "Payment Request: ${{plan}} - ${{email}}"
+labels: ["paylink-request"]
+body:
+  - type: dropdown
+    id: plan
+    attributes:
+      label: Plan
+      description: Select the plan you want to buy
+      options:
+        - starter
+        - basic
+        - pro
+    validations:
+      required: true
+
+  - type: input
+    id: amount
+    attributes:
+      label: Amount (e.g. 25.00)
+      description: The amount for this request (numbers only)
+      placeholder: 25.00
+    validations:
+      required: true
+
+  - type: dropdown
+    id: currency
+    attributes:
+      label: Currency
+      options:
+        - AUD
+        - USD
+    validations:
+      required: true
+
+  - type: input
+    id: email
+    attributes:
+      label: PayPal Email
+      description: Email associated with PayPal (where invoices/payments are expected)
+      placeholder: user@example.com
+    validations:
+      required: true
+
+  - type: input
+    id: fullName
+    attributes:
+      label: Full name
+      description: Your full name for the license
+
+  - type: date
+    id: date_of_birth
+    attributes:
+      label: Date of birth
+      description: Optional - used when KYC/age verification is needed
+
+  - type: textarea
+    id: note
+    attributes:
+      label: Note
+      description: Any additional information about the request

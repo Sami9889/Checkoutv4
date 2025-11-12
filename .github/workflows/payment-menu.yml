@@ -2,12 +2,12 @@ name: Payment Request Menu
 
 on:
   issues:
-    types: [opened]
+    types: [opened, labeled]
 
 jobs:
   payment-menu:
     runs-on: ubuntu-latest
-    if: contains(github.event.issue.body, 'payment') || contains(github.event.issue.body, 'checkout') || contains(github.event.issue.body, 'plan')
+    if: contains(github.event.issue.labels.*.name, 'paylink-request')
     
     steps:
       - name: Get domain from secrets or use default
