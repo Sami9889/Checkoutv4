@@ -1,6 +1,6 @@
 name: Payment Request
-about: Request a payment link for a plan. Use this form to create a structured payment request that the automation and maintainers will process.
-title: "Payment Request: ${{plan}} - ${{email}}"
+description: Request a payment link for a plan. Use this form to create a structured payment request that the automation and maintainers will process.
+title: "Payment Request"
 labels: ["paylink-request"]
 body:
   - type: dropdown
@@ -20,7 +20,7 @@ body:
     attributes:
       label: Amount (e.g. 25.00)
       description: The amount for this request (numbers only)
-      placeholder: 25.00
+      placeholder: "25.00"
     validations:
       required: true
 
@@ -49,11 +49,12 @@ body:
       label: Full name
       description: Your full name for the license
 
-  - type: date
+  - type: input
     id: date_of_birth
     attributes:
-      label: Date of birth
+      label: Date of birth (YYYY-MM-DD)
       description: Optional - used when KYC/age verification is needed
+      placeholder: "1990-01-01"
 
   - type: textarea
     id: note
