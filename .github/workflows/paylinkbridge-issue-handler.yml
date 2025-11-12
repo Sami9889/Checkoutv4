@@ -1,0 +1,91 @@
+name: PayLinkBridge - Issue Handler
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  handle-issue:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if payment request
+        id: check
+        run: |
+          BODY="${{ github.event.issue.body }}"
+          if echo "$BODY" | grep -qi 'payment\|plan\|checkout'; then
+            echo "is_payment=true" >> $GITHUB_OUTPUT
+          else
+            echo "is_payment=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Parse payment fields
+        id: parse
+        if: steps.check.outputs.is_payment == 'true'
+        run: |
+          BODY="${{ github.event.issue.body }}"
+          plan=$(echo "$BODY" | grep -i 'plan:' | sed 's/.*plan[: ]*//' | head -1 | xargs || echo "")
+          amount=$(echo "$BODY" | grep -i 'amount:' | sed 's/.*amount[: ]*//' | head -1 | xargs || echo "")
+          currency=$(echo "$BODY" | grep -i 'currency:' | sed 's/.*currency[: ]*//' | head -1 | xargs || echo "AUD")
+          email=$(echo "$BODY" | grep -i 'email:' | sed 's/.*email[: ]*//' | head -1 | xargs || echo "")
+          echo "plan=$plan" >> $GITHUB_OUTPUT
+          echo "amount=$amount" >> $GITHUB_OUTPUT
+          echo "currency=$currency" >> $GITHUB_OUTPUT
+          echo "email=$email" >> $GITHUB_OUTPUT
+
+      - name: Post to PayLinkBridge server
+        if: steps.check.outputs.is_payment == 'true'
+        env:
+          PAYLINK_API_URL: ${{ secrets.PAYLINK_API_URL }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ -z "${PAYLINK_API_URL}" ]; then
+            echo "Error: PAYLINK_API_URL secret not configured"
+            curl -s -X POST "https://api.github.com/repos/${GITHUB_REPOSITORY}/issues/${{ github.event.issue.number }}/comments" \
+              -H "Authorization: token ${GITHUB_TOKEN}" \
+              -H "Content-Type: application/json" \
+              -d "{ \"body\": \"⚠️ **Configuration Error**\\n\\nPayment API URL not configured. Please contact admin.\" }"
+            exit 0
+          fi
+          
+          payload=$(cat <<EOF
+          {
+            "issue_number": "${{ github.event.issue.number }}",
+            "issue_url": "${{ github.event.issue.html_url }}",
+            "title": "${{ github.event.issue.title }}",
+            "plan": "${{ steps.parse.outputs.plan }}",
+            "amount": "${{ steps.parse.outputs.amount }}",
+            "currency": "${{ steps.parse.outputs.currency }}",
+            "email": "${{ steps.parse.outputs.email }}"
+          }
+          EOF
+          )
+          
+          # avoid duplicate bot comments: check existing comments for our success message
+          existing_comments=$(curl -s -H "Authorization: token ${GITHUB_TOKEN}" "https://api.github.com/repos/${GITHUB_REPOSITORY}/issues/${{ github.event.issue.number }}/comments")
+          if echo "$existing_comments" | grep -F "✅ **Payment request received!**" > /dev/null 2>&1; then
+            echo "Already posted a payment confirmation comment — skipping.";
+            exit 0
+          fi
+
+          resp=$(curl -s -w "\n%{http_code}" -X POST "${PAYLINK_API_URL}/server/issue" \
+            -H "Content-Type: application/json" \
+            -d "$payload")
+
+          code=$(echo "$resp" | tail -n1)
+          body=$(echo "$resp" | sed '$d')
+
+          if [ "$code" = "201" ] || [ "$code" = "200" ]; then
+            curl -s -X POST "https://api.github.com/repos/${GITHUB_REPOSITORY}/issues/${{ github.event.issue.number }}/comments" \
+              -H "Authorization: token ${GITHUB_TOKEN}" \
+              -H "Content-Type: application/json" \
+              -d "{ \"body\": \"✅ **Payment request received!**\\n\\nYour payment request has been recorded. Proceed to checkout and you will receive your license key via email after payment.\\n\\n📧 Email: ${{ steps.parse.outputs.email }}\\n📦 Plan: ${{ steps.parse.outputs.plan }}\\n💰 Amount: ${{ steps.parse.outputs.currency }} ${{ steps.parse.outputs.amount }}\" }"
+          else
+            curl -s -X POST "https://api.github.com/repos/${GITHUB_REPOSITORY}/issues/${{ github.event.issue.number }}/comments" \
+              -H "Authorization: token ${GITHUB_TOKEN}" \
+              -H "Content-Type: application/json" \
+              -d "{ \"body\": \"⚠️ **Error processing request**\\n\\nStatus: $code\\n\\nPlease try again or contact support.\" }"
+            exit 1
+          fi

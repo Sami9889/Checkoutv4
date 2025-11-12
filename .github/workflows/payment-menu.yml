@@ -1,0 +1,73 @@
+name: Payment Request Menu
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  payment-menu:
+    runs-on: ubuntu-latest
+    if: contains(github.event.issue.body, 'payment') || contains(github.event.issue.body, 'checkout') || contains(github.event.issue.body, 'plan')
+    
+    steps:
+      - name: Get domain from secrets or use default
+        id: domain
+        run: |
+          DOMAIN="${{ secrets.PAYLINK_DOMAIN }}"
+          if [ -z "$DOMAIN" ]; then
+            DOMAIN="https://checkout.example.com"
+          fi
+          echo "domain=$DOMAIN" >> $GITHUB_OUTPUT
+
+      - name: Create Payment Menu Comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const domain = "${{ steps.domain.outputs.domain }}";
+            const issue = context.issue;
+
+            // build menu content safely to avoid YAML parsing issues
+            const lines = [
+              '## 💳 Payment Plans Available',
+              '',
+              '| Plan | Price | Link |',
+              '|------|-------|------|',
+              `| **Starter** | $10.00 AUD | [Pay Now](${domain}?plan=starter) |`,
+              `| **Basic** | $25.00 AUD | [Pay Now](${domain}?plan=basic) |`,
+              `| **Pro** | $99.00 AUD | [Pay Now](${domain}?plan=pro) |`,
+              '',
+              '### How it works:',
+              '1. Click the "Pay Now" link for your desired plan',
+              '2. Complete payment via PayPal',
+              '3. You will receive your license key via email',
+              '4. Check spam folder if you don\'t see it',
+              '',
+              '### Questions?',
+              'Reply to this issue if you have any questions.'
+            ];
+            const menu = lines.join('\n');
+
+            // Avoid duplicate posting: check existing comments for same menu
+            const comments = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue.number,
+            });
+
+            if (comments.data.some(c => c.body && c.body.includes('## 💳 Payment Plans Available'))) {
+              console.log('Payment menu already posted — skipping.');
+              return;
+            }
+
+            try {
+              await github.rest.issues.createComment({
+                issue_number: issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: menu
+              });
+              console.log('✅ Payment menu posted successfully');
+            } catch (error) {
+              console.error('Error posting menu:', error);
+              throw error;
+            }
