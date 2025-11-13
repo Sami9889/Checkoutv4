@@ -2,63 +2,91 @@ name: Payment Request Menu
 
 on:
   issues:
-    types: [opened, labeled]
+    types: [opened, edited]
+
+permissions:
+  issues: write
 
 jobs:
   payment-menu:
     runs-on: ubuntu-latest
-    if: contains(github.event.issue.labels.*.name, 'paylink-request')
+    # Trigger on ANY issue with "payment", "checkout", or "plan" in title/body
+    # OR if labeled with paylink-request
+    if: |
+      contains(github.event.issue.body, 'payment') ||
+      contains(github.event.issue.body, 'checkout') ||
+      contains(github.event.issue.body, 'plan') ||
+      contains(github.event.issue.title, 'payment') ||
+      contains(github.event.issue.title, 'checkout') ||
+      contains(github.event.issue.title, 'plan') ||
+      contains(github.event.issue.labels.*.name, 'paylink-request')
     
     steps:
       - name: Create Payment Menu Comment
         uses: actions/github-script@v7
         with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const serverUrl = "http://localhost:4000";
+            // Use production domain if available, else default
+            const serverUrl = process.env.PAYLINK_DOMAIN || 'https://checkout.example.com';
             const issue = context.issue;
 
-            // build menu content safely to avoid YAML parsing issues
-            const lines = [
-              '## 💳 Payment Plans Available',
-              '',
-              '| Plan | Price | Link |',
-              '|------|-------|------|',
-              `| **Starter** | $10.00 AUD | [Pay Now](${serverUrl}/web/checkout.html?plan=starter) |`,
-              `| **Basic** | $25.00 AUD | [Pay Now](${serverUrl}/web/checkout.html?plan=basic) |`,
-              `| **Pro** | $99.00 AUD | [Pay Now](${serverUrl}/web/checkout.html?plan=pro) |`,
-              '',
-              '### How it works:',
-              '1. Click the "Pay Now" link for your desired plan',
-              '2. Complete payment via PayPal',
-              '3. You will receive your license key via email',
-              '4. Check spam folder if you don\'t see it',
-              '',
-              '### Questions?',
-              'Reply to this issue if you have any questions.'
-            ];
-            const menu = lines.join('\n');
+            // Build menu content
+            const menu = `## 💳 Payment Plans Available
 
-            // Avoid duplicate posting: check existing comments for same menu
+| Plan | Price | Link |
+|------|-------|------|
+| **Starter** | \$10.00 AUD | [Pay Now](${serverUrl}/web/checkout.html?plan=starter) |
+| **Basic** | \$25.00 AUD | [Pay Now](${serverUrl}/web/checkout.html?plan=basic) |
+| **Pro** | \$99.00 AUD | [Pay Now](${serverUrl}/web/checkout.html?plan=pro) |
+
+### How it works:
+1. Click the "Pay Now" link for your desired plan
+2. Complete payment via PayPal
+3. You will receive your license key via email
+4. Your customer record will be automatically created
+5. Check spam folder if you don't see the license email
+
+### What happens after payment:
+✅ License key sent via email
+✅ Customer record created in our system
+✅ GitHub issue created with your details
+✅ Admin notified of new customer
+
+### Questions?
+Reply to this issue if you have any questions.`;
+
+            // Check if menu already posted
             const comments = await github.rest.issues.listComments({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: issue.number,
             });
 
-            if (comments.data.some(c => c.body && c.body.includes('## 💳 Payment Plans Available'))) {
-              console.log('Payment menu already posted — skipping.');
+            const menuAlreadyPosted = comments.data.some(c => 
+              c.body && c.body.includes('## 💳 Payment Plans Available')
+            );
+
+            if (menuAlreadyPosted) {
+              console.log('✓ Payment menu already posted — skipping duplicate');
               return;
             }
 
+            // Post menu comment
             try {
-              await github.rest.issues.createComment({
-                issue_number: issue.number,
+              const comment = await github.rest.issues.createComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
+                issue_number: issue.number,
                 body: menu
               });
-              console.log('✅ Payment menu posted successfully');
+              
+              console.log(`✅ Payment menu posted successfully`);
+              console.log(`   Issue: ${context.repo.owner}/${context.repo.repo}#${issue.number}`);
+              console.log(`   Comment ID: ${comment.data.id}`);
             } catch (error) {
-              console.error('Error posting menu:', error);
+              console.error('❌ Error posting menu:', error.message);
               throw error;
             }
+        env:
+          PAYLINK_DOMAIN: ${{ secrets.PAYLINK_DOMAIN }}
