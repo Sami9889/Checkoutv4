@@ -16,13 +16,20 @@ import customersRouter from './customers.js';
 dotenv.config();
 const app = express();
 app.use(express.json());
-// Redirect any requests coming to the example domain to the bank-transfer checkout
+
+// Redirect any requests coming to the example domain or /checkout.html to the bank-transfer checkout
 app.use((req, res, next) => {
   try {
     const host = (req.headers && req.headers.host) ? String(req.headers.host) : '';
-    if (host.includes('checkout.example.com')) {
+    const path = req.originalUrl || '';
+    
+    // Intercept any request to checkout.example.com or requests for /checkout.html or /web/checkout.html
+    if (host.includes('checkout.example.com') || 
+        host.includes('example.com') ||
+        path.includes('/checkout.html') ||
+        path.includes('/web/checkout.html')) {
       // preserve query string when redirecting
-      const qs = req.originalUrl && req.originalUrl.includes('?') ? req.originalUrl.slice(req.originalUrl.indexOf('?')) : '';
+      const qs = path.includes('?') ? path.slice(path.indexOf('?')) : '';
       return res.redirect(302, '/bank-checkout.html' + qs);
     }
   } catch (e) {

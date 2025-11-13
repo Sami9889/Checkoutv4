@@ -4,6 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PayLinkBridge - Professional Checkout</title>
+  <script>
+    // Prevent loading on example domain - redirect immediately
+    if (window.location.hostname.includes('example.com') || window.location.hostname.includes('example')) {
+      window.location.replace('/bank-checkout.html' + window.location.search);
+    }
+  </script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { 
