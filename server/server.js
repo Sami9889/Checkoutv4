@@ -17,6 +17,33 @@ dotenv.config();
 const app = express();
 app.use(express.json());
 
+// CRITICAL: Redirect middleware BEFORE static serving to intercept example domain requests
+app.use((req, res, next) => {
+  try {
+    const host = (req.headers && req.headers.host) ? String(req.headers.host) : '';
+    const reqPath = req.originalUrl || '';
+    
+    // Intercept requests to example domain or checkout.html paths
+    if (host.includes('checkout.example.com') || 
+        host.includes('example.com') ||
+        reqPath.includes('/checkout.html') ||
+        reqPath.includes('/web/checkout.html')) {
+      const qs = reqPath.includes('?') ? reqPath.slice(reqPath.indexOf('?')) : '';
+      console.log(`🔄 Redirecting ${host}${reqPath} -> /bank-checkout.html${qs}`);
+      return res.redirect(302, '/bank-checkout.html' + qs);
+    }
+    
+    // Make bank-checkout the default for root and index
+    if (reqPath === '/' || reqPath.includes('/index.html')) {
+      const qs = reqPath.includes('?') ? reqPath.slice(reqPath.indexOf('?')) : '';
+      return res.redirect(302, '/bank-checkout.html' + qs);
+    }
+  } catch (e) {
+    console.error('Redirect middleware error:', e.message);
+  }
+  return next();
+});
+
 // Serve static files
 
 app.use(express.static(path.resolve('./web')));
