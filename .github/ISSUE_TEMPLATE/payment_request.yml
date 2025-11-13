@@ -37,9 +37,9 @@ body:
   - type: input
     id: email
     attributes:
-      label: PayPal Email
-      description: Email associated with PayPal (where invoices/payments are expected)
-      placeholder: user@example.com
+      label: Payment Email / Reference
+      description: Email or payment reference (PayPal email or bank transfer reference)
+      placeholder: your-email-or-reference
     validations:
       required: true
 

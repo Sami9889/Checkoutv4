@@ -1,6 +1,6 @@
-name: PayPal Payment / Plan Request
+name: Payment / Plan Request
 description: Submit payment details so we can create an order and issue a license.
-title: "[PayLinkBridge] Payment Request — {plan} — {paypal_email}"
+title: "[PayLinkBridge] Payment Request — {plan} — {payment_reference}"
 labels: ["paylink-request"]
 body:
   - type: dropdown
@@ -38,10 +38,10 @@ body:
       required: true
 
   - type: input
-    id: paypal_email
+    id: payment_reference
     attributes:
-      label: PayPal email
-      placeholder: "you@example.com"
+      label: Payment email or reference
+      placeholder: "your-email-or-reference"
     validations:
       required: true
 
@@ -78,8 +78,8 @@ body:
     id: license_email
     attributes:
       label: Email for license delivery
-      placeholder: "license@example.com"
-      description: "License key will be sent to this email address"
+      placeholder: "license-email"
+      description: "License key will be sent to this address"
     validations:
       required: true
 
