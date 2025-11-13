@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PayLinkBridge Setup Guide</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+    
+    .guide-container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      overflow: hidden;
+    }
+    
+    .guide-header {
+      background: linear-gradient(135deg, #0070ba, #003087);
+      color: white;
+      padding: 50px 40px;
+      text-align: center;
+    }
+    
+    .guide-header h1 {
+      font-size: 36px;
+      margin-bottom: 10px;
+    }
+    
+    .guide-header p {
+      font-size: 16px;
+      opacity: 0.9;
+    }
+    
+    .guide-content {
+      padding: 40px;
+    }
+    
+    .section {
+      margin-bottom: 40px;
+    }
+    
+    .section h2 {
+      color: #003087;
+      font-size: 24px;
+      margin-bottom: 20px;
+      border-bottom: 3px solid #0070ba;
+      padding-bottom: 10px;
+    }
+    
+    .section h3 {
+      color: #0070ba;
+      font-size: 18px;
+      margin-top: 25px;
+      margin-bottom: 15px;
+    }
+    
+    .step-box {
+      background: #f0f9ff;
+      border-left: 4px solid #0070ba;
+      padding: 20px;
+      margin: 15px 0;
+      border-radius: 6px;
+    }
+    
+    .step-number {
+      display: inline-block;
+      background: #0070ba;
+      color: white;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      text-align: center;
+      line-height: 32px;
+      font-weight: 600;
+      margin-right: 10px;
+    }
+    
+    .step-title {
+      font-weight: 600;
+      color: #003087;
+      margin-bottom: 10px;
+    }
+    
+    .code-block {
+      background: #1e1e1e;
+      color: #d4d4d4;
+      padding: 15px;
+      border-radius: 6px;
+      overflow-x: auto;
+      margin: 15px 0;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+    }
+    
+    .code-block code {
+      display: block;
+      white-space: pre;
+    }
+    
+    .bank-info {
+      background: linear-gradient(135deg, #e8f5e9, #f1f8e9);
+      border: 2px solid #4caf50;
+      border-radius: 8px;
+      padding: 25px;
+      margin: 20px 0;
+    }
+    
+    .bank-info-row {
+      display: flex;
+      margin-bottom: 12px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(0,0,0,0.1);
+    }
+    
+    .bank-info-row:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+    
+    .bank-label {
+      font-weight: 600;
+      color: #2e7d32;
+      min-width: 180px;
+    }
+    
+    .bank-value {
+      color: #333;
+      font-family: 'Courier New', monospace;
+      flex: 1;
+    }
+    
+    .warning-box {
+      background: #fff3cd;
+      border: 1px solid #ffc107;
+      border-radius: 6px;
+      padding: 15px;
+      margin: 15px 0;
+      color: #856404;
+    }
+    
+    .success-box {
+      background: #d4edda;
+      border: 1px solid #28a745;
+      border-radius: 6px;
+      padding: 15px;
+      margin: 15px 0;
+      color: #155724;
+    }
+    
+    .checklist {
+      list-style: none;
+      margin: 15px 0;
+    }
+    
+    .checklist li {
+      padding: 10px;
+      margin: 8px 0;
+      background: #f5f5f5;
+      border-radius: 4px;
+      border-left: 3px solid #0070ba;
+    }
+    
+    .checklist li:before {
+      content: "✓ ";
+      color: #28a745;
+      font-weight: 600;
+      margin-right: 10px;
+    }
+    
+    .button {
+      display: inline-block;
+      padding: 12px 24px;
+      background: linear-gradient(135deg, #0070ba, #003087);
+      color: white;
+      text-decoration: none;
+      border-radius: 6px;
+      margin-top: 20px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+    
+    .button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0,112,186,0.3);
+    }
+    
+    .flow-diagram {
+      background: #f8f8f8;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 20px;
+      margin: 20px 0;
+      text-align: center;
+      line-height: 2;
+      color: #333;
+      font-size: 14px;
+    }
+    
+    .flow-diagram .arrow {
+      color: #0070ba;
+      font-size: 18px;
+      margin: 0 5px;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+    }
+    
+    table th {
+      background: #003087;
+      color: white;
+      padding: 12px;
+      text-align: left;
+      border: 1px solid #ddd;
+    }
+    
+    table td {
+      padding: 12px;
+      border: 1px solid #ddd;
+    }
+    
+    table tr:nth-child(even) {
+      background: #f8f8f8;
+    }
+  </style>
+</head>
+<body>
+  <div class="guide-container">
+    <div class="guide-header">
+      <h1>🚀 PayLinkBridge Setup Guide</h1>
+      <p>Get your checkout system running in 5 minutes</p>
+    </div>
+    
+    <div class="guide-content">
+      <!-- Bank Account Section -->
+      <div class="section">
+        <h2>💳 Your Bank Account Details</h2>
+        <div class="bank-info">
+          <div class="bank-info-row">
+            <span class="bank-label">Account Owner:</span>
+            <span class="bank-value">SAMRATH SINGH</span>
+          </div>
+          <div class="bank-info-row">
+            <span class="bank-label">Bank:</span>
+            <span class="bank-value">Commonwealth Bank (Australia)</span>
+          </div>
+          <div class="bank-info-row">
+            <span class="bank-label">Account Number:</span>
+            <span class="bank-value">4760652</span>
+          </div>
+          <div class="bank-info-row">
+            <span class="bank-label">BSB:</span>
+            <span class="bank-value">062948</span>
+          </div>
+          <div class="bank-info-row">
+            <span class="bank-label">Address:</span>
+            <span class="bank-value">2 ZUCCOTTI CRES, POINT COOK VIC 3030</span>
+          </div>
+          <div class="bank-info-row">
+            <span class="bank-label">BIC/SWIFT Code:</span>
+            <span class="bank-value">CTBAAU2S</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Setup Steps -->
+      <div class="section">
+        <h2>⚙️ Setup Steps</h2>
+        
+        <div class="step-box">
+          <div class="step-number">1</div>
+          <div class="step-title">Get PayPal Credentials</div>
+          <p>Visit <a href="https://developer.paypal.com" target="_blank">developer.paypal.com</a> and sign in with your PayPal business account.</p>
+          <p>Navigate to <strong>Apps & Credentials</strong> and copy your:</p>
+          <ul class="checklist">
+            <li>Client ID</li>
+            <li>Client Secret</li>
+          </ul>
+        </div>
+
+        <div class="step-box">
+          <div class="step-number">2</div>
+          <div class="step-title">Update .env File</div>
+          <p>Edit the <code>.env</code> file in your project root:</p>
+          <div class="code-block"><code>PAYPAL_CLIENT_ID=YOUR_CLIENT_ID_HERE
+PAYPAL_SECRET=YOUR_SECRET_HERE
+PAYPAL_PAYOUT_EMAIL=your-business@paypal.com
+PAYPAL_ENV=sandbox</code></div>
+          <p style="font-size: 12px; color: #666; margin-top: 10px;">Replace with your actual credentials from PayPal Dashboard</p>
+        </div>
+
+        <div class="step-box">
+          <div class="step-number">3</div>
+          <div class="step-title">Configure Email Delivery</div>
+          <p>For sending license keys via email, configure SMTP (Gmail recommended):</p>
+          <div class="code-block"><code>SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=your_email@gmail.com
+SMTP_PASS=your_16_char_app_password
+SMTP_FROM=noreply@yourdomain.com</code></div>
+          <div class="warning-box">
+            ⚠️ <strong>Gmail users:</strong> Use a 16-character App Password, not your regular password.
+            <a href="https://myaccount.google.com/apppasswords" target="_blank">Get App Password</a>
+          </div>
+        </div>
+
+        <div class="step-box">
+          <div class="step-number">4</div>
+          <div class="step-title">Set Admin Credentials</div>
+          <div class="code-block"><code>ADMIN_PASS=create_a_strong_password
+ADMIN_EMAIL=your_email@example.com</code></div>
+        </div>
+
+        <div class="step-box">
+          <div class="step-number">5</div>
+          <div class="step-title">Restart the Server</div>
+          <div class="code-block"><code>npm install
+npm start</code></div>
+          <div class="success-box">
+            ✅ Server should start on http://localhost:4000
+          </div>
+        </div>
+      </div>
+
+      <!-- Testing -->
+      <div class="section">
+        <h2>🧪 Testing the Checkout</h2>
+        
+        <h3>1. Visit Checkout Page</h3>
+        <p>Open <a href="/checkout.html" target="_blank">http://localhost:4000/checkout.html</a></p>
+        
+        <h3>2. Select a Plan</h3>
+        <p>Choose from:</p>
+        <table>
+          <tr>
+            <th>Plan</th>
+            <th>Price</th>
+            <th>Duration</th>
+            <th>Features</th>
+          </tr>
+          <tr>
+            <td><strong>Starter</strong></td>
+            <td>$10.00 AUD</td>
+            <td>30 days</td>
+            <td>Basic features, Email support</td>
+          </tr>
+          <tr>
+            <td><strong>Basic</strong></td>
+            <td>$25.00 AUD</td>
+            <td>90 days</td>
+            <td>Starter + Priority support, Analytics</td>
+          </tr>
+          <tr>
+            <td><strong>Pro</strong></td>
+            <td>$99.00 AUD</td>
+            <td>1 year</td>
+            <td>Basic + 24/7 support, API access</td>
+          </tr>
+        </table>
+        
+        <h3>3. Complete Payment</h3>
+        <ol class="checklist">
+          <li>Enter your name and email</li>
+          <li>Click "Pay with PayPal"</li>
+          <li>Use PayPal sandbox credentials to test</li>
+          <li>Confirm payment</li>
+          <li>See success page with license key</li>
+        </ol>
+      </div>
+
+      <!-- Payment Flow -->
+      <div class="section">
+        <h2>📊 Payment Flow</h2>
+        <div class="flow-diagram">
+          User visits checkout.html<br/>
+          <span class="arrow">↓</span><br/>
+          Selects plan & enters details<br/>
+          <span class="arrow">↓</span><br/>
+          Clicks "Pay with PayPal"<br/>
+          <span class="arrow">↓</span><br/>
+          PayPal order created<br/>
+          <span class="arrow">↓</span><br/>
+          PayPal approval page<br/>
+          <span class="arrow">↓</span><br/>
+          Payment captured<br/>
+          <span class="arrow">↓</span><br/>
+          License generated & email sent<br/>
+          <span class="arrow">↓</span><br/>
+          GitHub issue created<br/>
+          <span class="arrow">↓</span><br/>
+          Payout initiated to bank<br/>
+          <span class="arrow">↓</span><br/>
+          Success page displayed
+        </div>
+      </div>
+
+      <!-- Troubleshooting -->
+      <div class="section">
+        <h2>🔧 Troubleshooting</h2>
+        
+        <h3>❌ "PayPal Not Configured" Error</h3>
+        <ul class="checklist">
+          <li>Check PAYPAL_CLIENT_ID is set in .env</li>
+          <li>Make sure it doesn't contain "YOUR_" or placeholder text</li>
+          <li>Restart the server after changing .env</li>
+          <li>Check server logs for errors</li>
+        </ul>
+        
+        <h3>❌ Checkout Page Shows "example.com"</h3>
+        <ul class="checklist">
+          <li>Visit /server/config to verify client ID is being returned</li>
+          <li>Check browser console (F12) for error messages</li>
+          <li>Verify PAYPAL_CLIENT_ID is not empty in .env</li>
+        </ul>
+        
+        <h3>❌ License Email Not Received</h3>
+        <ul class="checklist">
+          <li>Check SMTP_USER and SMTP_PASS in .env</li>
+          <li>Gmail users: verify 16-character app password</li>
+          <li>Check spam/junk folder</li>
+          <li>Check server logs for email errors</li>
+        </ul>
+        
+        <h3>❌ Payout Not Processing</h3>
+        <ul class="checklist">
+          <li>Verify PAYPAL_PAYOUT_EMAIL is set correctly</li>
+          <li>Check PayPal API credentials are valid</li>
+          <li>Review server logs for payout errors</li>
+          <li>Ensure payout amount exceeds minimum threshold</li>
+        </ul>
+      </div>
+
+      <!-- Next Steps -->
+      <div class="section">
+        <h2>✨ Next Steps</h2>
+        <ul class="checklist">
+          <li>Test the full checkout flow</li>
+          <li>Configure GitHub token for auto-issues (optional)</li>
+          <li>Test email delivery</li>
+          <li>Switch to live PayPal when ready (change PAYPAL_ENV=live)</li>
+          <li>Deploy to production server</li>
+        </ul>
+        
+        <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #ddd;">
+          <p style="color: #666; font-size: 14px;">
+            <strong>Questions?</strong> Check the server logs or create a GitHub issue at 
+            <a href="https://github.com/Sami9889/Checkoutv4/issues" target="_blank">Checkoutv4 Issues</a>
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</body>
+</html>

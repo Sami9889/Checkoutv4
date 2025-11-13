@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bank Transfer Admin - PayLinkBridge</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: #f5f5f5;
+      padding: 20px;
+    }
+
+    .admin-container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #0070ba, #003087);
+      color: white;
+      padding: 30px;
+      border-radius: 8px;
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+
+    .login-section {
+      background: white;
+      border-radius: 8px;
+      padding: 30px;
+      max-width: 400px;
+      margin: 30px auto;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(135deg, #0070ba, #003087);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,112,186,0.3);
+    }
+
+    .summary-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .summary-card {
+      background: white;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+
+    .summary-card .number {
+      font-size: 32px;
+      font-weight: 700;
+      color: #0070ba;
+      margin-bottom: 10px;
+    }
+
+    .summary-card .label {
+      color: #666;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .section {
+      background: white;
+      border-radius: 8px;
+      padding: 25px;
+      margin-bottom: 30px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .section h2 {
+      color: #003087;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #0070ba;
+      padding-bottom: 10px;
+    }
+
+    .transfer-item {
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 20px;
+      margin-bottom: 15px;
+      background: #f9f9f9;
+    }
+
+    .transfer-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .transfer-code {
+      font-size: 18px;
+      font-weight: 700;
+      color: #f57f17;
+      font-family: 'Courier New', monospace;
+    }
+
+    .transfer-status {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .status-pending {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    .status-completed {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .transfer-details {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+
+    .detail-item {
+      font-size: 13px;
+      color: #666;
+    }
+
+    .detail-label {
+      color: #003087;
+      font-weight: 600;
+    }
+
+    .transfer-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn-verify {
+      padding: 10px 20px;
+      background: #28a745;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .btn-verify:hover {
+      background: #218838;
+    }
+
+    .error-message {
+      background: #f8d7da;
+      border: 1px solid #f5c6cb;
+      color: #721c24;
+      padding: 15px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      display: none;
+    }
+
+    .success-message {
+      background: #d4edda;
+      border: 1px solid #c3e6cb;
+      color: #155724;
+      padding: 15px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      display: none;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .code-copy {
+      margin-left: 10px;
+      padding: 4px 8px;
+      background: #0070ba;
+      color: white;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 11px;
+    }
+
+    .code-copy:hover {
+      background: #003087;
+    }
+
+    @media (max-width: 600px) {
+      .transfer-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .transfer-code {
+        margin-bottom: 10px;
+      }
+
+      .transfer-details {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-container">
+    <div class="header">
+      <h1>🏦 Bank Transfer Admin Panel</h1>
+      <p>Verify and manage bank transfer payments</p>
+    </div>
+
+    <!-- Login Section -->
+    <div id="login-section" class="login-section">
+      <h2 style="margin-bottom: 25px; text-align: center; color: #003087;">Admin Login</h2>
+      <div class="error-message" id="login-error"></div>
+      <form id="login-form">
+        <div class="form-group">
+          <label for="password">Admin Password</label>
+          <input type="password" id="password" placeholder="Enter admin password" required>
+        </div>
+        <button type="submit" class="btn">Login</button>
+      </form>
+    </div>
+
+    <!-- Dashboard (hidden until login) -->
+    <div id="dashboard" class="hidden">
+      <div class="error-message" id="error-message"></div>
+      <div class="success-message" id="success-message"></div>
+
+      <!-- Summary Cards -->
+      <div class="summary-cards">
+        <div class="summary-card">
+          <div class="number" id="total-transfers">0</div>
+          <div class="label">Total Transfers</div>
+        </div>
+        <div class="summary-card">
+          <div class="number" id="pending-transfers">0</div>
+          <div class="label">Pending</div>
+        </div>
+        <div class="summary-card">
+          <div class="number" id="completed-transfers">0</div>
+          <div class="label">Verified</div>
+        </div>
+        <div class="summary-card">
+          <div class="number" id="total-pending">$0</div>
+          <div class="label">Pending Amount</div>
+        </div>
+      </div>
+
+      <!-- Pending Transfers -->
+      <div class="section">
+        <h2>⏳ Pending Transfers</h2>
+        <div id="pending-list">
+          <p style="color: #999;">Loading transfers...</p>
+        </div>
+      </div>
+
+      <!-- Completed Transfers -->
+      <div class="section">
+        <h2>✓ Verified Transfers</h2>
+        <div id="completed-list">
+          <p style="color: #999;">No completed transfers yet</p>
+        </div>
+      </div>
+
+      <button onclick="logout()" style="padding: 10px 20px; background: #ccc; color: #333; border: none; border-radius: 4px; cursor: pointer; margin-top: 20px;">
+        Logout
+      </button>
+    </div>
+  </div>
+
+  <script>
+    let adminPass = null;
+
+    // Handle login
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const password = document.getElementById('password').value;
+      
+      try {
+        const response = await fetch('/server/bank-transfers?pass=' + encodeURIComponent(password));
+        
+        if (response.status === 401) {
+          showLoginError('Invalid password');
+          return;
+        }
+        
+        if (!response.ok) {
+          throw new Error('Failed to load transfers');
+        }
+
+        adminPass = password;
+        
+        // Hide login, show dashboard
+        document.getElementById('login-section').classList.add('hidden');
+        document.getElementById('dashboard').classList.remove('hidden');
+        
+        // Load transfers
+        await loadTransfers();
+      } catch (error) {
+        showLoginError(error.message);
+      }
+    });
+
+    function showLoginError(message) {
+      const elem = document.getElementById('login-error');
+      elem.textContent = '❌ ' + message;
+      elem.style.display = 'block';
+    }
+
+    async function loadTransfers() {
+      try {
+        const response = await fetch('/server/bank-transfers?pass=' + encodeURIComponent(adminPass));
+        if (!response.ok) throw new Error('Failed to load transfers');
+        
+        const data = await response.json();
+        
+        // Update summary
+        document.getElementById('total-transfers').textContent = data.summary.total;
+        document.getElementById('pending-transfers').textContent = data.summary.pending;
+        document.getElementById('completed-transfers').textContent = data.summary.completed;
+        document.getElementById('total-pending').textContent = '$' + data.summary.totalPending.toFixed(2);
+
+        // Display pending transfers
+        const pendingList = document.getElementById('pending-list');
+        if (data.pending.length === 0) {
+          pendingList.innerHTML = '<p style="color: #999;">No pending transfers</p>';
+        } else {
+          pendingList.innerHTML = data.pending.map(t => renderTransfer(t)).join('');
+        }
+
+        // Display completed transfers
+        const completedList = document.getElementById('completed-list');
+        if (data.completed.length === 0) {
+          completedList.innerHTML = '<p style="color: #999;">No verified transfers yet</p>';
+        } else {
+          completedList.innerHTML = data.completed.map(t => renderTransfer(t, true)).join('');
+        }
+      } catch (error) {
+        showError(error.message);
+      }
+    }
+
+    function renderTransfer(transfer, isCompleted = false) {
+      const date = new Date(transfer.createdAt).toLocaleDateString();
+      const status = isCompleted ? 'Verified' : 'Pending';
+      const statusClass = isCompleted ? 'status-completed' : 'status-pending';
+      
+      let actions = '';
+      if (!isCompleted) {
+        actions = `
+          <div class="transfer-actions">
+            <button class="btn-verify" onclick="verifyTransfer('${transfer.paymentCode}')">
+              ✓ Verify Payment
+            </button>
+          </div>
+        `;
+      } else {
+        actions = `
+          <div class="detail-item">
+            <span class="detail-label">License Issued:</span> ${transfer.license}
+          </div>
+        `;
+      }
+
+      return `
+        <div class="transfer-item">
+          <div class="transfer-header">
+            <div class="transfer-code">
+              ${transfer.paymentCode}
+              <button class="code-copy" onclick="copyCode('${transfer.paymentCode}')">Copy</button>
+            </div>
+            <span class="transfer-status ${statusClass}">${status}</span>
+          </div>
+          <div class="transfer-details">
+            <div class="detail-item">
+              <span class="detail-label">Customer:</span> ${transfer.fullName}
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Email:</span> ${transfer.email}
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Plan:</span> ${transfer.plan.toUpperCase()}
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Amount:</span> $${transfer.amount.toFixed(2)} AUD
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Date:</span> ${date}
+            </div>
+          </div>
+          ${actions}
+        </div>
+      `;
+    }
+
+    async function verifyTransfer(paymentCode) {
+      if (!confirm('Verify transfer for code: ' + paymentCode + '?')) {
+        return;
+      }
+
+      try {
+        const response = await fetch('/server/verify-bank-transfer', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            paymentCode,
+            adminPass
+          })
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error);
+        }
+
+        const result = await response.json();
+        
+        showSuccess(`✓ Transfer verified! License: ${result.license}`);
+        await loadTransfers();
+      } catch (error) {
+        showError('❌ ' + error.message);
+      }
+    }
+
+    function copyCode(code) {
+      navigator.clipboard.writeText(code).then(() => {
+        alert('✓ Copied: ' + code);
+      });
+    }
+
+    function showError(message) {
+      const elem = document.getElementById('error-message');
+      elem.textContent = message;
+      elem.style.display = 'block';
+    }
+
+    function showSuccess(message) {
+      const elem = document.getElementById('success-message');
+      elem.textContent = message;
+      elem.style.display = 'block';
+      setTimeout(() => {
+        elem.style.display = 'none';
+      }, 5000);
+    }
+
+    function logout() {
+      adminPass = null;
+      document.getElementById('login-section').classList.remove('hidden');
+      document.getElementById('dashboard').classList.add('hidden');
+      document.getElementById('password').value = '';
+      document.getElementById('login-error').style.display = 'none';
+    }
+  </script>
+</body>
+</html>

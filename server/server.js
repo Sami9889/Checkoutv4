@@ -5,6 +5,7 @@ import yaml from 'js-yaml';
 import dotenv from 'dotenv';
 import { encryptJSON, decryptJSON } from './crypto-utils.js';
 import paymentsRouter from './payments.js';
+import bankTransfersRouter from './bank-transfers.js';
 import kycRouter from './kyc.js';
 import issueRouter from './issue-handler.js';
 import payoutsRouter from './payouts.js';
@@ -43,6 +44,7 @@ app.get('/server/config', (req,res)=> {
 });
 
 app.use('/', paymentsRouter);
+app.use('/', bankTransfersRouter);
 app.use('/', kycRouter);
 app.use('/', issueRouter);
 app.use('/', payoutsRouter);

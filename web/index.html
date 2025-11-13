@@ -3,19 +3,19 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Professional Checkout - Secure Payments</title>
+  <title>PayLinkBridge - Secure Payment Checkout</title>
   <link rel="stylesheet" href="style.css">
-  <script src="https://www.paypal.com/sdk/js?client-id=YOUR_CLIENT_ID&currency=AUD"></script>
 </head>
 <body>
 <nav class="navbar">
   <div class="nav-container">
-    <h1 class="logo">PayLink</h1>
+    <h1 class="logo">💳 PayLinkBridge</h1>
     <ul class="nav-menu">
-      <li><a href="#checkout">Checkout</a></li>
-      <li><a href="#plans">Plans</a></li>
-      <li><a href="#github-requests">Request</a></li>
-      <li><a href="#faq">FAQ</a></li>
+      <li><a href="checkout.html">PayPal Checkout</a></li>
+      <li><a href="bank-checkout.html">Bank Transfer</a></li>
+      <li><a href="bank-admin.html">Admin</a></li>
+      <li><a href="setup-guide.html">Setup</a></li>
+      <li><a href="https://github.com/Sami9889/Checkoutv4" target="_blank">GitHub</a></li>
     </ul>
   </div>
 </nav>
@@ -24,31 +24,67 @@
   <!-- Hero Section -->
   <section class="hero">
     <h1>Secure Payment Processing</h1>
-    <p>Fast, reliable, and secure checkout powered by PayPal</p>
+    <p>Accept payments via PayPal or Bank Transfer</p>
+  </section>
+
+  <!-- Payment Method Options -->
+  <section class="payment-methods" style="margin: 40px 0;">
+    <h2 style="text-align: center; margin-bottom: 30px; color: #003087;">Choose Your Payment Method</h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin: 30px 0;">
+      <!-- PayPal Option -->
+      <a href="/checkout.html" style="padding: 30px; background: linear-gradient(135deg, rgba(0,112,186,0.05), rgba(0,48,135,0.05)); border: 2px solid #0070ba; border-radius: 8px; text-align: center; text-decoration: none; color: #333; transition: all 0.3s ease; cursor: pointer;">
+        <div style="font-size: 48px; margin-bottom: 15px;">🔵</div>
+        <div style="font-weight: 600; font-size: 18px; margin-bottom: 10px; color: #0070ba;">PayPal</div>
+        <div style="font-size: 13px; color: #666; line-height: 1.6;">
+          <p>✓ Instant processing</p>
+          <p>✓ Automatic license delivery</p>
+          <p>✓ No bank transfer wait</p>
+          <p style="margin-top: 15px;"><strong>Pay Now →</strong></p>
+        </div>
+      </a>
+      
+      <!-- Bank Transfer Option -->
+      <a href="/bank-checkout.html" style="padding: 30px; background: linear-gradient(135deg, rgba(76,175,80,0.05), rgba(56,142,60,0.05)); border: 2px solid #4caf50; border-radius: 8px; text-align: center; text-decoration: none; color: #333; transition: all 0.3s ease; cursor: pointer;">
+        <div style="font-size: 48px; margin-bottom: 15px;">🏦</div>
+        <div style="font-weight: 600; font-size: 18px; margin-bottom: 10px; color: #2e7d32;">Bank Transfer</div>
+        <div style="font-size: 13px; color: #666; line-height: 1.6;">
+          <p>✓ Direct to bank account</p>
+          <p>✓ Manual verification</p>
+          <p>✓ Unique payment codes</p>
+          <p style="margin-top: 15px;"><strong>Get Code →</strong></p>
+        </div>
+      </a>
+    </div>
   </section>
 
   <!-- Checkout Section -->
   <section id="checkout" class="checkout-section">
-    <h2>Complete Your Payment</h2>
-    <div id="checkout-container">
-      <div id="payment-form" class="payment-card">
-        <div class="form-group">
-          <label for="plan">Select Plan:</label>
-          <select id="plan">
-            <option value="pro">Professional - $99.00/month</option>
-            <option value="basic" selected>Basic - $25.00/month</option>
-            <option value="starter">Starter - $10.00/month</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label for="email">Email Address:</label>
-          <input type="email" id="email" placeholder="your@email.com" required />
-        </div>
-        <div class="amount-display">
-          <span>Total: <strong id="amount-display">$25.00</strong></span>
-        </div>
-        <div id="paypal-button-container"></div>
-        <div id="checkout-status" class="status-message"></div>
+    <h2>Quick Checkout Links</h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 30px 0;">
+      <a href="/checkout.html?plan=starter" class="plan-link" style="padding: 20px; background: #f8f8f8; border: 2px solid #ddd; border-radius: 8px; text-align: center; text-decoration: none; color: #333; transition: all 0.3s ease;">
+        <div style="font-size: 24px;">⭐</div>
+        <div style="font-weight: 600; margin: 10px 0;">Starter</div>
+        <div style="font-size: 24px; color: #0070ba; font-weight: 700;">$10.00</div>
+        <div style="font-size: 12px; color: #666; margin-top: 10px;">30-day access</div>
+      </a>
+      
+      <a href="/checkout.html?plan=basic" class="plan-link" style="padding: 20px; background: linear-gradient(135deg, rgba(0,112,186,0.05), rgba(0,48,135,0.05)); border: 2px solid #0070ba; border-radius: 8px; text-align: center; text-decoration: none; color: #333; transition: all 0.3s ease; transform: scale(1.05);">
+        <div style="font-size: 24px;">🎯</div>
+        <div style="font-weight: 600; margin: 10px 0; color: #0070ba;">Basic (Popular)</div>
+        <div style="font-size: 24px; color: #0070ba; font-weight: 700;">$25.00</div>
+        <div style="font-size: 12px; color: #666; margin-top: 10px;">90-day access</div>
+      </a>
+      
+      <a href="/checkout.html?plan=pro" class="plan-link" style="padding: 20px; background: #f8f8f8; border: 2px solid #ddd; border-radius: 8px; text-align: center; text-decoration: none; color: #333; transition: all 0.3s ease;">
+        <div style="font-size: 24px;">👑</div>
+        <div style="font-weight: 600; margin: 10px 0;">Pro</div>
+        <div style="font-size: 24px; color: #0070ba; font-weight: 700;">$99.00</div>
+        <div style="font-size: 12px; color: #666; margin-top: 10px;">1-year access</div>
+      </a>
+    </div>
+  </section>
+
+  <!-- Plans Section -->
       </div>
 
       <div id="result-section" class="payment-card result-hidden">

@@ -19,15 +19,31 @@
 - PayPal business account
 - GitHub repository (optional, for issue tracking)
 
-### 2. Setup
+### 2. Complete Setup Guide
+
+⭐ **[See CHECKOUT_SETUP.md for detailed instructions](./CHECKOUT_SETUP.md)**
+
+This includes:
+- Getting PayPal credentials
+- Configuring .env file
+- Setting up email delivery
+- Testing the checkout
+- Bank account details for payouts
+
+### 3. Quick Setup (30 seconds)
 
 ```bash
 # Install dependencies
 npm install
 
-# Create environment file
-cp .env.example .env
+# Edit .env with your PayPal credentials
+nano .env
+
+# Start the server
+npm start
 ```
+
+Visit: http://localhost:4000/checkout.html
 
 ### 3. Configure
 
