@@ -24,69 +24,64 @@ jobs:
     steps:
       - name: Create Payment Menu Comment
         uses: actions/github-script@v7
+        env:
+          PAYLINK_DOMAIN: ${{ secrets.PAYLINK_DOMAIN }}
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            // Use production domain if available, else default
             const serverUrl = process.env.PAYLINK_DOMAIN || 'https://checkout.example.com';
             const issue = context.issue;
+            
+            const menu = [
+              '## 💳 Payment Plans Available',
+              '',
+              '| Plan | Price | Link |',
+              '|------|-------|------|',
+              `| **Starter** | $10.00 AUD | [Pay Now](${serverUrl}/web/checkout.html?plan=starter) |`,
+              `| **Basic** | $25.00 AUD | [Pay Now](${serverUrl}/web/checkout.html?plan=basic) |`,
+              `| **Pro** | $99.00 AUD | [Pay Now](${serverUrl}/web/checkout.html?plan=pro) |`,
+              '',
+              '### How it works:',
+              '1. Click the "Pay Now" link for your desired plan',
+              '2. Complete payment via PayPal',
+              '3. You will receive your license key via email',
+              '4. Your customer record will be automatically created',
+              '5. Check spam folder if you don\'t see the license email',
+              '',
+              '### What happens after payment:',
+              '✅ License key sent via email',
+              '✅ Customer record created in our system',
+              '✅ GitHub issue created with your details',
+              '✅ Admin notified of new customer',
+              '',
+              '### Questions?',
+              'Reply to this issue if you have any questions.'
+            ].join('\n');
 
-            // Build menu content
-            const menu = `## 💳 Payment Plans Available
-
-| Plan | Price | Link |
-|------|-------|------|
-| **Starter** | \$10.00 AUD | [Pay Now](${serverUrl}/web/checkout.html?plan=starter) |
-| **Basic** | \$25.00 AUD | [Pay Now](${serverUrl}/web/checkout.html?plan=basic) |
-| **Pro** | \$99.00 AUD | [Pay Now](${serverUrl}/web/checkout.html?plan=pro) |
-
-### How it works:
-1. Click the "Pay Now" link for your desired plan
-2. Complete payment via PayPal
-3. You will receive your license key via email
-4. Your customer record will be automatically created
-5. Check spam folder if you don't see the license email
-
-### What happens after payment:
-✅ License key sent via email
-✅ Customer record created in our system
-✅ GitHub issue created with your details
-✅ Admin notified of new customer
-
-### Questions?
-Reply to this issue if you have any questions.`;
-
-            // Check if menu already posted
             const comments = await github.rest.issues.listComments({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: issue.number,
             });
 
-            const menuAlreadyPosted = comments.data.some(c => 
+            const menuExists = comments.data.some(c => 
               c.body && c.body.includes('## 💳 Payment Plans Available')
             );
 
-            if (menuAlreadyPosted) {
-              console.log('✓ Payment menu already posted — skipping duplicate');
+            if (menuExists) {
+              console.log('✓ Menu already posted');
               return;
             }
 
-            // Post menu comment
             try {
-              const comment = await github.rest.issues.createComment({
+              await github.rest.issues.createComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: issue.number,
                 body: menu
               });
-              
-              console.log(`✅ Payment menu posted successfully`);
-              console.log(`   Issue: ${context.repo.owner}/${context.repo.repo}#${issue.number}`);
-              console.log(`   Comment ID: ${comment.data.id}`);
+              console.log('✅ Payment menu posted');
             } catch (error) {
-              console.error('❌ Error posting menu:', error.message);
+              console.error('❌ Error:', error.message);
               throw error;
             }
-        env:
-          PAYLINK_DOMAIN: ${{ secrets.PAYLINK_DOMAIN }}

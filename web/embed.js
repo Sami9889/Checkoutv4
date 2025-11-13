@@ -19,8 +19,8 @@
   // Configuration
   const CONFIG = {
     container: window.PaylinkCheckout?.container || '#paylink-checkout',
-    domain: window.PaylinkCheckout?.domain || 'https://checkout.example.com',
-    apiUrl: window.PaylinkCheckout?.apiUrl || 'https://checkout.example.com',
+    domain: window.PaylinkCheckout?.domain || (typeof process !== 'undefined' ? process.env.PAYLINK_SELF_URL : '') || 'https://checkout.example.com',
+    apiUrl: window.PaylinkCheckout?.apiUrl || (typeof process !== 'undefined' ? process.env.PAYLINK_SELF_URL : '') || 'https://checkout.example.com',
     plans: {
       starter: { price: 10.00, name: 'Starter' },
       basic: { price: 25.00, name: 'Basic' },

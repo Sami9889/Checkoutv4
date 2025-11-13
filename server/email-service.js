@@ -97,7 +97,7 @@ export async function sendAdminNotification(plan, amount, email, orderId) {
         <p><strong>Date:</strong> ${new Date().toISOString()}</p>
       </div>
       
-      <p><a href="${process.env.PAYLINK_SELF_URL || 'http://localhost:4000'}/server/admin?pass=${process.env.ADMIN_PASS}">View Admin Dashboard</a></p>
+      <p><a href="${process.env.PAYLINK_SELF_URL || 'https://checkout.example.com'}/server/admin?pass=${process.env.ADMIN_PASS}">View Admin Dashboard</a></p>
     `
   };
 

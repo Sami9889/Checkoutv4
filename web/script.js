@@ -1,7 +1,7 @@
 // Configuration
 const CONFIG = {
-  github_owner: 'YOUR_GITHUB_USER',
-  github_repo: 'YOUR_GITHUB_REPO'
+  github_owner: 'Sami9889',
+  github_repo: 'Checkoutv4'
 };
 
 // Plan pricing
@@ -146,7 +146,7 @@ function openGitHubIssue(type) {
   const repo = CONFIG.github_repo;
   
   if (owner === 'YOUR_GITHUB_USER' || repo === 'YOUR_GITHUB_REPO') {
-    showGitHubStatus('⚠️ GitHub repository not configured. Please contact support.', 'error');
+    showGitHubStatus('⚠️ GitHub repository not configured in CONFIG. Please update web/script.js.', 'error');
     return;
   }
   

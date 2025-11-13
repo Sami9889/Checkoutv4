@@ -27,7 +27,7 @@ function saveDB(){ fs.writeFileSync(DB_FILE, JSON.stringify(vault, null,2)); }
 function getClients(){ return vault.clients_encrypted ? decryptJSON(vault.clients_encrypted) : []; }
 function setClients(arr){ vault.clients_encrypted = encryptJSON(arr); vault.clients_encrypted = vault.clients_encrypted; saveDB(); }
 
-app.get('/server/health', (req,res)=> res.json({ ok:true, mode: process.env.MODE || 'mock', version: '1.0.0' }));
+app.get('/server/health', (req,res)=> res.json({ ok:true, mode: process.env.MODE || 'paypal', version: '1.0.0' }));
 
 app.use('/', paymentsRouter);
 app.use('/', kycRouter);
@@ -45,5 +45,5 @@ app.get('/server/admin', (req,res)=>{
 });
 
 const PORT = process.env.PORT || CFG.port || 4000;
-app.listen(PORT, ()=> console.log(`PayLinkBridge v1.0.0 running on port ${PORT} (Mode: ${process.env.MODE || 'mock'})
+app.listen(PORT, ()=> console.log(`PayLinkBridge v1.0.0 running on port ${PORT} (Mode: ${process.env.MODE || 'paypal'})
 💰 Payouts to: SAMRATH SINGH - Commonwealth Bank (BSB: 062948)`));
