@@ -187,7 +187,7 @@
       }
     }
   </style>
-  <script src="https://www.paypal.com/sdk/js?client-id=YOUR_CLIENT_ID&currency=AUD"></script>
+  <script id="paypal-sdk"></script>
 </head>
 <body>
   <div class="checkout-container">
@@ -228,6 +228,44 @@
       pro: { price: 99.00, name: 'Pro Plan', features: ['All Basic features', '24/7 Premium support', 'API access', 'Custom integration', '1-year access'] }
     };
     
+    // Dynamically load PayPal SDK
+    async function loadPayPalSDK() {
+      return new Promise(async (resolve, reject) => {
+        try {
+          // Fetch PayPal client ID from server
+          const configRes = await fetch('/server/config');
+          if (!configRes.ok) {
+            throw new Error('Failed to fetch PayPal configuration');
+          }
+          
+          const config = await configRes.json();
+          const clientId = config.paypalClientId;
+          
+          if (!clientId) {
+            throw new Error('❌ PayPal Client ID not configured. Please set PAYPAL_CLIENT_ID in .env');
+          }
+          
+          console.log('📋 PayPal config loaded');
+          
+          // Create PayPal script tag
+          const script = document.getElementById('paypal-sdk');
+          script.src = `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(clientId)}&currency=AUD`;
+          script.async = true;
+          script.onload = () => {
+            console.log('✅ PayPal SDK loaded');
+            resolve();
+          };
+          script.onerror = () => {
+            console.error('❌ Failed to load PayPal SDK');
+            reject(new Error('PayPal SDK load failed'));
+          };
+          document.head.appendChild(script);
+        } catch (error) {
+          reject(error);
+        }
+      });
+    }
+    
     // Create plan cards
     function initializePlans() {
       const container = document.getElementById('plans-container');
@@ -247,11 +285,14 @@
       
       container.innerHTML = html;
       
-      // Add event listeners
+      // Add event listeners for plan selection
       document.querySelectorAll('.plan-card').forEach(card => {
         card.addEventListener('click', function() {
           document.querySelectorAll('.plan-card').forEach(c => c.classList.remove('active'));
           this.classList.add('active');
+          
+          // Re-render PayPal button with new amount
+          renderPayPalButton();
         });
       });
       
@@ -260,21 +301,30 @@
     }
     
     // Initialize PayPal button
-    function initializePayPal() {
-      if (!window.paypal) return;
+    function renderPayPalButton() {
+      if (!window.paypal) {
+        console.error('PayPal SDK not loaded');
+        return;
+      }
+      
+      // Clear previous button
+      const container = document.getElementById('paypal-button-container');
+      container.innerHTML = '';
       
       paypal.Buttons({
         createOrder: async (data, actions) => {
           const plan = document.querySelector('input[name="plan"]:checked').value;
-          const email = document.getElementById('email').value;
-          const name = document.getElementById('name').value;
+          const email = document.getElementById('email').value.trim();
+          const name = document.getElementById('name').value.trim();
           
           if (!email || !name) {
-            alert('Please fill in all fields');
+            alert('⚠️ Please fill in all fields (Name and Email)');
             return;
           }
           
           try {
+            console.log(`📦 Creating order for ${plan} plan ($${PLANS[plan].price}) - ${name} (${email})`);
+            
             const response = await fetch('/server/create-order', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
@@ -282,58 +332,112 @@
                 amount: PLANS[plan].price,
                 currency: 'AUD',
                 plan: plan,
-                email: email
+                email: email,
+                fullName: name
               })
             });
             
+            if (!response.ok) {
+              const error = await response.json();
+              throw new Error(error.error || `HTTP ${response.status}`);
+            }
+            
             const order = await response.json();
-            if (order.id) return order.id;
-            throw new Error(order.error || 'Failed to create order');
+            console.log('✅ Order created:', order.id);
+            
+            if (order.id) {
+              return order.id;
+            } else {
+              throw new Error(order.error || 'No order ID returned');
+            }
           } catch (error) {
-            console.error('Order creation error:', error);
-            alert('Payment initialization failed: ' + error.message);
+            console.error('❌ Order creation failed:', error);
+            alert('❌ Payment initialization failed: ' + error.message);
+            throw error;
           }
         },
         
         onApprove: async (data, actions) => {
           const plan = document.querySelector('input[name="plan"]:checked').value;
-          const email = document.getElementById('email').value;
+          const email = document.getElementById('email').value.trim();
+          const name = document.getElementById('name').value.trim();
           
           try {
+            console.log(`💳 Approving order ${data.orderID}...`);
+            
             const response = await fetch('/server/capture-order', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
                 orderId: data.orderID,
                 payerEmail: email,
+                fullName: name,
                 plan: plan
               })
             });
             
+            if (!response.ok) {
+              const error = await response.json();
+              throw new Error(error.error || `HTTP ${response.status}`);
+            }
+            
             const result = await response.json();
+            
             if (result.success) {
-              localStorage.setItem('license', result.license);
-              window.location.href = '/success.html?license=' + result.license;
+              console.log('✅ Payment captured successfully!');
+              console.log('   License:', result.license);
+              console.log('   Customer ID:', result.customerId);
+              
+              // Store in session storage and redirect
+              sessionStorage.setItem('license', result.license);
+              sessionStorage.setItem('customerId', result.customerId);
+              sessionStorage.setItem('orderId', result.orderId);
+              
+              // Redirect to success page with license
+              window.location.href = `/success.html?license=${result.license}&customerId=${result.customerId}&orderId=${result.orderId}`;
             } else {
-              alert('Payment failed: ' + result.error);
+              throw new Error(result.error || 'Payment processing failed');
             }
           } catch (error) {
-            console.error('Capture error:', error);
-            alert('Payment processing failed');
+            console.error('❌ Capture error:', error);
+            alert('❌ Payment processing failed: ' + error.message);
           }
         },
         
         onError: (err) => {
-          console.error('PayPal error:', err);
-          alert('Payment error occurred');
+          console.error('❌ PayPal error:', err);
+          alert('❌ Payment error: ' + (err.message || 'Unknown error'));
+        },
+        
+        onCancel: () => {
+          console.log('⚠️ Payment cancelled by user');
+          alert('⚠️ You cancelled the payment. Feel free to try again!');
         }
-      }).render('#paypal-button-container');
+      }).render('#paypal-button-container').catch(err => {
+        console.error('❌ Failed to render PayPal button:', err);
+        alert('❌ Failed to load PayPal button: ' + err.message);
+      });
     }
     
     // Initialize on load
-    document.addEventListener('DOMContentLoaded', function() {
-      initializePlans();
-      initializePayPal();
+    document.addEventListener('DOMContentLoaded', async function() {
+      console.log('🚀 Initializing checkout...');
+      
+      try {
+        initializePlans();
+        console.log('✅ Plans initialized');
+        
+        // Load PayPal SDK
+        await loadPayPalSDK();
+        console.log('✅ PayPal SDK loaded');
+        
+        // Render button
+        renderPayPalButton();
+        console.log('✅ PayPal button rendered');
+      } catch (error) {
+        console.error('❌ Initialization error:', error);
+        alert('❌ Failed to initialize checkout: ' + error.message);
+      }
     });
   </script>
 </body>

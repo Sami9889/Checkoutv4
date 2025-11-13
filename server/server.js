@@ -27,7 +27,20 @@ function saveDB(){ fs.writeFileSync(DB_FILE, JSON.stringify(vault, null,2)); }
 function getClients(){ return vault.clients_encrypted ? decryptJSON(vault.clients_encrypted) : []; }
 function setClients(arr){ vault.clients_encrypted = encryptJSON(arr); vault.clients_encrypted = vault.clients_encrypted; saveDB(); }
 
-app.get('/server/health', (req,res)=> res.json({ ok:true, mode: process.env.MODE || 'paypal', version: '1.0.0' }));
+app.get('/server/health', (req,res)=> res.json({ 
+  ok: true, 
+  mode: process.env.MODE || 'paypal', 
+  version: '1.0.0',
+  paypalReady: !!process.env.PAYPAL_CLIENT_ID
+}));
+
+app.get('/server/config', (req,res)=> {
+  // Only return PayPal client ID (safe to expose to frontend)
+  res.json({
+    paypalClientId: process.env.PAYPAL_CLIENT_ID || null,
+    paypalEnv: process.env.PAYPAL_ENV || 'sandbox'
+  });
+});
 
 app.use('/', paymentsRouter);
 app.use('/', kycRouter);

@@ -201,9 +201,21 @@
   </div>
   
   <script>
-    function getLicenseFromURL() {
+    function getParamFromURL(param) {
       const params = new URLSearchParams(window.location.search);
-      return params.get('license') || localStorage.getItem('license') || 'NOT_FOUND';
+      return params.get(param);
+    }
+    
+    function getLicense() {
+      return getParamFromURL('license') || sessionStorage.getItem('license') || 'NOT_FOUND';
+    }
+    
+    function getCustomerId() {
+      return getParamFromURL('customerId') || sessionStorage.getItem('customerId') || null;
+    }
+    
+    function getOrderId() {
+      return getParamFromURL('orderId') || sessionStorage.getItem('orderId') || null;
     }
     
     function copyLicense() {
@@ -211,16 +223,49 @@
       navigator.clipboard.writeText(license).then(() => {
         const btn = event.target;
         const originalText = btn.textContent;
-        btn.textContent = 'Copied!';
+        btn.textContent = '✓ Copied!';
         setTimeout(() => {
           btn.textContent = originalText;
         }, 2000);
+      }).catch(err => {
+        console.error('Copy failed:', err);
+        alert('Failed to copy license');
       });
     }
     
     document.addEventListener('DOMContentLoaded', function() {
-      const license = getLicenseFromURL();
+      const license = getLicense();
+      const customerId = getCustomerId();
+      const orderId = getOrderId();
+      
+      console.log('🎉 Payment Success!');
+      console.log('   License:', license);
+      console.log('   Customer ID:', customerId);
+      console.log('   Order ID:', orderId);
+      
+      // Display license
       document.getElementById('license-key').textContent = license;
+      
+      // Create details div with additional info
+      if (customerId || orderId) {
+        const detailsHtml = `
+          <div style="background: #f0f9ff; border: 1px solid #0070ba; border-radius: 6px; padding: 15px; margin-top: 20px; font-size: 13px; color: #333;">
+            <div style="margin-bottom: 8px;"><strong>📋 Details:</strong></div>
+            ${customerId ? `<div>🆔 Customer ID: <code style="background: white; padding: 2px 6px; border-radius: 3px;">${customerId}</code></div>` : ''}
+            ${orderId ? `<div>📦 Order ID: <code style="background: white; padding: 2px 6px; border-radius: 3px;">${orderId}</code></div>` : ''}
+          </div>
+        `;
+        
+        const container = document.querySelector('.license-section');
+        container.insertAdjacentHTML('afterend', detailsHtml);
+      }
+      
+      // Clear session storage after displaying
+      setTimeout(() => {
+        sessionStorage.removeItem('license');
+        sessionStorage.removeItem('customerId');
+        sessionStorage.removeItem('orderId');
+      }, 1000);
     });
   </script>
 </body>
