@@ -228,6 +228,26 @@
       pro: { price: 99.00, name: 'Pro Plan', features: ['All Basic features', '24/7 Premium support', 'API access', 'Custom integration', '1-year access'] }
     };
     
+    // If PayPal is not configured, redirect to bank transfer checkout
+    async function redirectIfNoPayPal() {
+      try {
+        const res = await fetch('/server/config');
+        if (!res.ok) return false;
+        const cfg = await res.json();
+        const clientId = cfg.paypalClientId;
+        if (!clientId || clientId.includes('YOUR_') || clientId.includes('your_')) {
+          // Redirect to bank transfer checkout
+          window.location.href = '/bank-checkout.html' + (window.location.search || '');
+          return true;
+        }
+      } catch (e) {
+        // if the config endpoint fails, fall back to bank checkout
+        try { window.location.href = '/bank-checkout.html' + (window.location.search || ''); } catch(e){}
+        return true;
+      }
+      return false;
+    }
+
     // Dynamically load PayPal SDK
     async function loadPayPalSDK() {
       return new Promise(async (resolve, reject) => {
@@ -446,6 +466,10 @@
       console.log('🚀 Initializing checkout...');
       
       try {
+        // If PayPal isn't configured, redirect to bank transfer checkout
+        const redirected = await redirectIfNoPayPal();
+        if (redirected) return; // navigation started
+
         initializePlans();
         console.log('✅ Plans initialized');
         

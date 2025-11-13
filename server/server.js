@@ -16,6 +16,20 @@ import customersRouter from './customers.js';
 dotenv.config();
 const app = express();
 app.use(express.json());
+// Redirect any requests coming to the example domain to the bank-transfer checkout
+app.use((req, res, next) => {
+  try {
+    const host = (req.headers && req.headers.host) ? String(req.headers.host) : '';
+    if (host.includes('checkout.example.com')) {
+      // preserve query string when redirecting
+      const qs = req.originalUrl && req.originalUrl.includes('?') ? req.originalUrl.slice(req.originalUrl.indexOf('?')) : '';
+      return res.redirect(302, '/bank-checkout.html' + qs);
+    }
+  } catch (e) {
+    // fall through to next middleware on error
+  }
+  return next();
+});
 app.use(express.static(path.resolve('./web')));
 app.use('/console', express.static(path.resolve('./console')));
 
