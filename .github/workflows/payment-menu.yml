@@ -1,13 +1,10 @@
 name: Payment Request Menu
-
 on:
   issues:
     types: [opened]
-
 permissions:
   issues: write
   pull-requests: write
-
 jobs:
   request:
     runs-on: ubuntu-latest
@@ -18,13 +15,15 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             try {
-              github.rest.issues.createComment({
+              await github.rest.issues.createComment({
                 issue_number: context.issue.number,
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 body: "Your payment request has been received and is being processed."
               });
+              console.log("Comment posted successfully");
             } catch (error) {
-              console.log("Error:", error.message);
-              throw error;
+              console.error("Error details:", error.message);
+              console.error("Full error:", JSON.stringify(error, null, 2));
+              core.setFailed(`Failed to post comment: ${error.message}`);
             }
