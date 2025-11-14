@@ -2,7 +2,7 @@ name: PayLinkBridge - Issue Handler
 
 on:
   issues:
-    types: [opened]
+    types: [opened, edited, labeled]
 
 permissions:
   issues: write
@@ -13,27 +13,145 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Handle Bridge Requests
+      - name: Handle Payment Requests
         uses: actions/github-script@v6
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const issue = context.payload.issue;
-            const title = issue.title.toLowerCase();
+            const title = (issue.title || '').toLowerCase();
+            const body = (issue.body || '').toLowerCase();
+            const labels = issue.labels.map(l => l.name.toLowerCase());
 
-            if (!title.includes("bridge")) {
-              github.rest.issues.createComment({
-                issue_number: issue.number,
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                body: "Invalid request. Missing 'bridge' keyword."
-              });
+            console.log('Processing issue #' + issue.number);
+            console.log('Title:', issue.title);
+            console.log('Labels:', labels.join(', '));
+
+            // Check if this is a payment-related issue
+            const paymentKeywords = [
+              'bridge', 
+              'paylink', 
+              'payment', 
+              'checkout', 
+              'plan', 
+              'purchase',
+              'buy',
+              'license',
+              'transfer'
+            ];
+            
+            const hasPaymentKeyword = paymentKeywords.some(kw => 
+              title.includes(kw) || body.includes(kw)
+            );
+            
+            const hasPaymentLabel = labels.some(l => 
+              l.includes('paylink') || 
+              l.includes('payment') || 
+              l.includes('bridge')
+            );
+
+            // Skip if not payment-related
+            if (!hasPaymentKeyword && !hasPaymentLabel) {
+              console.log('Not a payment-related issue, skipping');
               return;
             }
 
-            github.rest.issues.createComment({
-              issue_number: issue.number,
+            console.log('✅ Payment-related issue detected');
+
+            // Check if we already commented on this issue
+            const comments = await github.rest.issues.listComments({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: "Your bridge request is being processed."
+              issue_number: issue.number
             });
+
+            const alreadyCommented = comments.data.some(comment => 
+              comment.user.login === 'github-actions[bot]' &&
+              comment.body.includes('Payment Request Processing')
+            );
+
+            if (alreadyCommented) {
+              console.log('Already commented on this issue, skipping');
+              return;
+            }
+
+            // Get server URL (use environment variable or default)
+            const serverUrl = process.env.PAYLINK_DOMAIN || 'http://localhost:4000';
+
+            // Post processing confirmation
+            const commentBody = `## 💳 Payment Request Processing
+
+Thank you for your payment request! Your request has been received and is being processed.
+
+### 🔄 What happens next:
+
+1. **Review** - Admin will review your request
+2. **Payment Link** - You'll receive a payment link or instructions
+3. **Complete Payment** - Follow the payment instructions
+4. **License Delivery** - Your license key will be sent via email
+5. **GitHub Issue** - A new issue will be created with your customer details
+
+### 📋 Request Details:
+
+- **Issue Number**: #${issue.number}
+- **Submitted**: ${new Date().toISOString()}
+- **Status**: Pending Review
+
+### 💡 Payment Options:
+
+#### Option 1: PayPal Checkout (Instant)
+[Pay Now via PayPal](${serverUrl}/checkout.html)
+
+#### Option 2: Bank Transfer (Manual Verification)
+[Get Payment Code for Bank Transfer](${serverUrl}/bank-checkout.html)
+
+### 🏦 Bank Transfer Details:
+
+If you prefer bank transfer:
+- **Bank**: Commonwealth Bank (Australia)
+- **Account Name**: SAMRATH SINGH
+- **BSB**: 062948
+- **Account**: 4760652
+- **BIC/SWIFT**: CTBAAU2S
+
+**Note**: Include your unique payment code in the transfer reference.
+
+### ⏱️ Processing Time:
+
+- **PayPal**: Instant (license delivered immediately)
+- **Bank Transfer**: 2-4 hours (after manual verification)
+
+### 📧 Support:
+
+If you have questions, reply to this issue or contact support.
+
+---
+
+*🤖 This is an automated response from PayLinkBridge payment system*`;
+
+            // Post the comment
+            try {
+              await github.rest.issues.createComment({
+                issue_number: issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: commentBody
+              });
+
+              console.log('✅ Posted processing confirmation comment');
+
+              // Add label if not already present
+              if (!hasPaymentLabel) {
+                await github.rest.issues.addLabels({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue.number,
+                  labels: ['paylink-request']
+                });
+                console.log('✅ Added paylink-request label');
+              }
+
+            } catch (error) {
+              console.error('❌ Error posting comment:', error.message);
+              core.setFailed('Failed to post comment: ' + error.message);
+            }
