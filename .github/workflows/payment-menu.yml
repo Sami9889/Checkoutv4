@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Payment Request Handler
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
@@ -48,44 +48,51 @@ jobs:
                 return;
               }
               
-              // Get the checkout URL - use your deployed domain or localhost
-              // Replace with your actual domain when deployed
-              const checkoutUrl = process.env.PAYLINK_DOMAIN || 'http://localhost:4000';
+              // Use your actual GitHub Pages URL or deployed domain
+              // Replace this with your real domain when deployed
+              const checkoutUrl = 'https://sami9889.github.io/Checkoutv4';
               
               // Post payment menu with REAL checkout links
               const menuBody = `## 💳 Payment Plans Available
 
-Thank you for your interest! Here are our available plans:
+            Thank you for your interest! Here are our available plans:
 
-| Plan | Price | Duration | Action |
-|------|-------|----------|--------|
-| **Starter** | $10.00 AUD | 30 days | [Pay Now](${checkoutUrl}/checkout.html?plan=starter) |
-| **Basic** | $25.00 AUD | 90 days | [Pay Now](${checkoutUrl}/checkout.html?plan=basic) |
-| **Pro** | $99.00 AUD | 1 year | [Pay Now](${checkoutUrl}/checkout.html?plan=pro) |
+            | Plan | Price | Duration | Action |
+            |------|-------|----------|--------|
+            | **Starter** | $10.00 AUD | 30 days | [Pay Now](${checkoutUrl}/web/checkout.html?plan=starter) |
+            | **Basic** | $25.00 AUD | 90 days | [Pay Now](${checkoutUrl}/web/checkout.html?plan=basic) |
+            | **Pro** | $99.00 AUD | 1 year | [Pay Now](${checkoutUrl}/web/checkout.html?plan=pro) |
 
-### 🏦 Alternative: Bank Transfer
+            ### 🏦 Alternative: Bank Transfer
 
-If you prefer to pay via bank transfer, click here: [Get Payment Code](${checkoutUrl}/bank-checkout.html)
+            If you prefer to pay via bank transfer, click here: [Get Payment Code](${checkoutUrl}/web/bank-checkout.html)
 
-### How it works:
-1. **Click the "Pay Now" link** for your desired plan
-2. **Complete payment** via PayPal (instant) or Bank Transfer (manual verification)
-3. **Receive your license key** via email
-4. **Your customer record** will be automatically created
-5. **A new GitHub issue** will be created with your details
+            **Bank Details:**
+            - **Bank**: Commonwealth Bank (Australia)
+            - **Account Name**: SAMRATH SINGH
+            - **BSB**: 062948
+            - **Account**: 4760652
+            - **BIC/SWIFT**: CTBAAU2S
 
-### What happens after payment:
-✅ License key sent via email  
-✅ Customer record created in our system  
-✅ GitHub issue created with your details  
-✅ Admin notified of new customer  
+            ### How it works:
+            1. **Click the "Pay Now" link** for your desired plan
+            2. **Complete payment** via PayPal (instant) or Bank Transfer (manual verification)
+            3. **Receive your license key** via email
+            4. **Your customer record** will be automatically created
+            5. **A new GitHub issue** will be created with your details
 
-### Questions?
-Reply to this issue if you have any questions about the payment process.
+            ### What happens after payment:
+            ✅ License key sent via email  
+            ✅ Customer record created in our system  
+            ✅ GitHub issue created with your details  
+            ✅ Admin notified of new customer  
 
----
+            ### Questions?
+            Reply to this issue if you have any questions about the payment process.
 
-*🔒 All payments are secure and encrypted*`;
+            ---
+
+            *🔒 All payments are secure and encrypted*`;
 
               await github.rest.issues.createComment({
                 issue_number: issueNumber,
@@ -108,5 +115,5 @@ Reply to this issue if you have any questions about the payment process.
             } catch (error) {
               console.error('❌ Error details:', error.message);
               console.error('   Full error:', JSON.stringify(error, null, 2));
-              core.setFailed(`Failed to post payment menu: ${error.message}`);
+              throw error;
             }
