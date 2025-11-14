@@ -76,59 +76,59 @@ jobs:
                 return;
               }
 
-              // Get server URL from environment or use default
-              const serverUrl = process.env.PAYLINK_DOMAIN || 'http://localhost:4000';
+              // Get server URL - use localhost for now
+              const serverUrl = 'http://localhost:4000';
 
               // Post processing confirmation
               const commentBody = `## 💳 Payment Request Processing
 
-Thank you for your payment request! Your request has been received and is being processed.
+            Thank you for your payment request! Your request has been received and is being processed.
 
-### 🔄 What happens next:
+            ### 🔄 What happens next:
 
-1. **Review** - Admin will review your request
-2. **Payment Link** - You'll receive a payment link or instructions
-3. **Complete Payment** - Follow the payment instructions
-4. **License Delivery** - Your license key will be sent via email
-5. **GitHub Issue** - A new issue will be created with your customer details
+            1. **Review** - Admin will review your request
+            2. **Payment Link** - You'll receive a payment link or instructions
+            3. **Complete Payment** - Follow the payment instructions
+            4. **License Delivery** - Your license key will be sent via email
+            5. **GitHub Issue** - A new issue will be created with your customer details
 
-### 📋 Request Details:
+            ### 📋 Request Details:
 
-- **Issue Number**: #${issue.number}
-- **Submitted**: ${new Date().toISOString()}
-- **Status**: Pending Review
+            - **Issue Number**: #${issue.number}
+            - **Submitted**: ${new Date().toISOString()}
+            - **Status**: Pending Review
 
-### 💡 Payment Options:
+            ### 💡 Payment Options:
 
-#### Option 1: PayPal Checkout (Instant)
-[Pay Now via PayPal](${serverUrl}/checkout.html)
+            #### Option 1: PayPal Checkout (Instant)
+            [Pay Now via PayPal](${serverUrl}/checkout.html)
 
-#### Option 2: Bank Transfer (Manual Verification)
-[Get Payment Code for Bank Transfer](${serverUrl}/bank-checkout.html)
+            #### Option 2: Bank Transfer (Manual Verification)
+            [Get Payment Code for Bank Transfer](${serverUrl}/bank-checkout.html)
 
-### 🏦 Bank Transfer Details:
+            ### 🏦 Bank Transfer Details:
 
-If you prefer bank transfer:
-- **Bank**: Commonwealth Bank (Australia)
-- **Account Name**: SAMRATH SINGH
-- **BSB**: 062948
-- **Account**: 4760652
-- **BIC/SWIFT**: CTBAAU2S
+            If you prefer bank transfer:
+            - **Bank**: Commonwealth Bank (Australia)
+            - **Account Name**: SAMRATH SINGH
+            - **BSB**: 062948
+            - **Account**: 4760652
+            - **BIC/SWIFT**: CTBAAU2S
 
-**Note**: Include your unique payment code in the transfer reference.
+            **Note**: Include your unique payment code in the transfer reference.
 
-### ⏱️ Processing Time:
+            ### ⏱️ Processing Time:
 
-- **PayPal**: Instant (license delivered immediately)
-- **Bank Transfer**: 2-4 hours (after manual verification)
+            - **PayPal**: Instant (license delivered immediately)
+            - **Bank Transfer**: 2-4 hours (after manual verification)
 
-### 📧 Support:
+            ### 📧 Support:
 
-If you have questions, reply to this issue or contact support.
+            If you have questions, reply to this issue or contact support.
 
----
+            ---
 
-*🤖 This is an automated response from PayLinkBridge payment system*`;
+            *🤖 This is an automated response from PayLinkBridge payment system*`;
 
               // Post the comment
               await github.rest.issues.createComment({
@@ -154,5 +154,5 @@ If you have questions, reply to this issue or contact support.
             } catch (error) {
               console.error('❌ Error in workflow:', error.message);
               console.error('Stack trace:', error.stack);
-              core.setFailed('Workflow failed: ' + error.message);
+              throw error;
             }
