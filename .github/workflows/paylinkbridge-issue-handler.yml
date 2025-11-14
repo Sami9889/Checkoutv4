@@ -76,8 +76,8 @@ jobs:
                 return;
               }
 
-              // Get server URL - use localhost for now
-              const serverUrl = 'http://localhost:4000';
+              // Get server URL - use GitHub Pages or your deployed domain
+              const serverUrl = 'https://sami9889.github.io/Checkoutv4';
 
               // Post processing confirmation
               const commentBody = `## 💳 Payment Request Processing
