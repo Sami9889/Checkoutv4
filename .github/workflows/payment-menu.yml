@@ -15,15 +15,98 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             try {
-              await github.rest.issues.createComment({
-                issue_number: context.issue.number,
+              const issue = context.payload.issue;
+              const issueNumber = issue.number;
+              const issueBody = issue.body || '';
+              const issueTitle = issue.title || '';
+              
+              // Check if this is a payment-related issue
+              const paymentKeywords = ['payment', 'checkout', 'plan', 'buy', 'purchase'];
+              const isPaymentIssue = paymentKeywords.some(keyword => 
+                issueTitle.toLowerCase().includes(keyword) || 
+                issueBody.toLowerCase().includes(keyword)
+              );
+              
+              if (!isPaymentIssue) {
+                console.log('Not a payment issue, skipping');
+                return;
+              }
+              
+              // Check for existing payment menu comment
+              const comments = await github.rest.issues.listComments({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                body: "Your payment request has been received and is being processed."
+                issue_number: issueNumber
               });
-              console.log("Comment posted successfully");
+              
+              const hasPaymentMenu = comments.data.some(comment => 
+                comment.body.includes('💳 Payment Plans Available')
+              );
+              
+              if (hasPaymentMenu) {
+                console.log('Payment menu already posted, skipping');
+                return;
+              }
+              
+              // Get the checkout URL - use your deployed domain or localhost
+              // Replace with your actual domain when deployed
+              const checkoutUrl = process.env.PAYLINK_DOMAIN || 'http://localhost:4000';
+              
+              // Post payment menu with REAL checkout links
+              const menuBody = `## 💳 Payment Plans Available
+
+Thank you for your interest! Here are our available plans:
+
+| Plan | Price | Duration | Action |
+|------|-------|----------|--------|
+| **Starter** | $10.00 AUD | 30 days | [Pay Now](${checkoutUrl}/checkout.html?plan=starter) |
+| **Basic** | $25.00 AUD | 90 days | [Pay Now](${checkoutUrl}/checkout.html?plan=basic) |
+| **Pro** | $99.00 AUD | 1 year | [Pay Now](${checkoutUrl}/checkout.html?plan=pro) |
+
+### 🏦 Alternative: Bank Transfer
+
+If you prefer to pay via bank transfer, click here: [Get Payment Code](${checkoutUrl}/bank-checkout.html)
+
+### How it works:
+1. **Click the "Pay Now" link** for your desired plan
+2. **Complete payment** via PayPal (instant) or Bank Transfer (manual verification)
+3. **Receive your license key** via email
+4. **Your customer record** will be automatically created
+5. **A new GitHub issue** will be created with your details
+
+### What happens after payment:
+✅ License key sent via email  
+✅ Customer record created in our system  
+✅ GitHub issue created with your details  
+✅ Admin notified of new customer  
+
+### Questions?
+Reply to this issue if you have any questions about the payment process.
+
+---
+
+*🔒 All payments are secure and encrypted*`;
+
+              await github.rest.issues.createComment({
+                issue_number: issueNumber,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: menuBody
+              });
+              
+              console.log(`✅ Payment menu posted to issue #${issueNumber}`);
+              console.log(`   Checkout URL: ${checkoutUrl}`);
+              
+              // Label the issue
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+                labels: ['payment-menu-posted']
+              });
+              
             } catch (error) {
-              console.error("Error details:", error.message);
-              console.error("Full error:", JSON.stringify(error, null, 2));
-              core.setFailed(`Failed to post comment: ${error.message}`);
+              console.error('❌ Error details:', error.message);
+              console.error('   Full error:', JSON.stringify(error, null, 2));
+              core.setFailed(`Failed to post payment menu: ${error.message}`);
             }
