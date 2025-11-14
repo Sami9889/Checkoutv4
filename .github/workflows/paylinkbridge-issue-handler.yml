@@ -6,80 +6,81 @@ on:
 
 permissions:
   issues: write
-  pull-requests: write
+  contents: read
 
 jobs:
   process:
     runs-on: ubuntu-latest
-
+    
     steps:
       - name: Handle Payment Requests
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const issue = context.payload.issue;
-            const title = (issue.title || '').toLowerCase();
-            const body = (issue.body || '').toLowerCase();
-            const labels = issue.labels.map(l => l.name.toLowerCase());
+            try {
+              const issue = context.payload.issue;
+              const title = (issue.title || '').toLowerCase();
+              const body = (issue.body || '').toLowerCase();
+              const labels = issue.labels.map(l => l.name.toLowerCase());
 
-            console.log('Processing issue #' + issue.number);
-            console.log('Title:', issue.title);
-            console.log('Labels:', labels.join(', '));
+              console.log('Processing issue #' + issue.number);
+              console.log('Title:', issue.title);
+              console.log('Labels:', labels.join(', '));
 
-            // Check if this is a payment-related issue
-            const paymentKeywords = [
-              'bridge', 
-              'paylink', 
-              'payment', 
-              'checkout', 
-              'plan', 
-              'purchase',
-              'buy',
-              'license',
-              'transfer'
-            ];
-            
-            const hasPaymentKeyword = paymentKeywords.some(kw => 
-              title.includes(kw) || body.includes(kw)
-            );
-            
-            const hasPaymentLabel = labels.some(l => 
-              l.includes('paylink') || 
-              l.includes('payment') || 
-              l.includes('bridge')
-            );
+              // Check if this is a payment-related issue
+              const paymentKeywords = [
+                'bridge', 
+                'paylink', 
+                'payment', 
+                'checkout', 
+                'plan', 
+                'purchase',
+                'buy',
+                'license',
+                'transfer'
+              ];
+              
+              const hasPaymentKeyword = paymentKeywords.some(kw => 
+                title.includes(kw) || body.includes(kw)
+              );
+              
+              const hasPaymentLabel = labels.some(l => 
+                l.includes('paylink') || 
+                l.includes('payment') || 
+                l.includes('bridge')
+              );
 
-            // Skip if not payment-related
-            if (!hasPaymentKeyword && !hasPaymentLabel) {
-              console.log('Not a payment-related issue, skipping');
-              return;
-            }
+              // Skip if not payment-related
+              if (!hasPaymentKeyword && !hasPaymentLabel) {
+                console.log('Not a payment-related issue, skipping');
+                return;
+              }
 
-            console.log('✅ Payment-related issue detected');
+              console.log('✅ Payment-related issue detected');
 
-            // Check if we already commented on this issue
-            const comments = await github.rest.issues.listComments({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: issue.number
-            });
+              // Check if we already commented on this issue
+              const comments = await github.rest.issues.listComments({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number
+              });
 
-            const alreadyCommented = comments.data.some(comment => 
-              comment.user.login === 'github-actions[bot]' &&
-              comment.body.includes('Payment Request Processing')
-            );
+              const alreadyCommented = comments.data.some(comment => 
+                comment.user.login === 'github-actions[bot]' &&
+                comment.body.includes('Payment Request Processing')
+              );
 
-            if (alreadyCommented) {
-              console.log('Already commented on this issue, skipping');
-              return;
-            }
+              if (alreadyCommented) {
+                console.log('Already commented on this issue, skipping');
+                return;
+              }
 
-            // Get server URL (use environment variable or default)
-            const serverUrl = process.env.PAYLINK_DOMAIN || 'http://localhost:4000';
+              // Get server URL from environment or use default
+              const serverUrl = process.env.PAYLINK_DOMAIN || 'http://localhost:4000';
 
-            // Post processing confirmation
-            const commentBody = `## 💳 Payment Request Processing
+              // Post processing confirmation
+              const commentBody = `## 💳 Payment Request Processing
 
 Thank you for your payment request! Your request has been received and is being processed.
 
@@ -129,8 +130,7 @@ If you have questions, reply to this issue or contact support.
 
 *🤖 This is an automated response from PayLinkBridge payment system*`;
 
-            // Post the comment
-            try {
+              // Post the comment
               await github.rest.issues.createComment({
                 issue_number: issue.number,
                 owner: context.repo.owner,
@@ -152,6 +152,7 @@ If you have questions, reply to this issue or contact support.
               }
 
             } catch (error) {
-              console.error('❌ Error posting comment:', error.message);
-              core.setFailed('Failed to post comment: ' + error.message);
+              console.error('❌ Error in workflow:', error.message);
+              console.error('Stack trace:', error.stack);
+              core.setFailed('Workflow failed: ' + error.message);
             }
