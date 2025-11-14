@@ -2,86 +2,29 @@ name: Payment Request Menu
 
 on:
   issues:
-    types: [opened, edited]
+    types: [opened]
 
 permissions:
   issues: write
+  pull-requests: write
 
 jobs:
-  payment-menu:
+  request:
     runs-on: ubuntu-latest
-    # Trigger on ANY issue with "payment", "checkout", or "plan" in title/body
-    # OR if labeled with paylink-request
-    if: |
-      contains(github.event.issue.body, 'payment') ||
-      contains(github.event.issue.body, 'checkout') ||
-      contains(github.event.issue.body, 'plan') ||
-      contains(github.event.issue.title, 'payment') ||
-      contains(github.event.issue.title, 'checkout') ||
-      contains(github.event.issue.title, 'plan') ||
-      contains(github.event.issue.labels.*.name, 'paylink-request')
-    
     steps:
-      - name: Create Payment Menu Comment
-        uses: actions/github-script@v7
-        env:
-          PAYLINK_DOMAIN: ${{ secrets.PAYLINK_DOMAIN }}
+      - name: Payment Request Handler
+        uses: actions/github-script@v6
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const serverUrl = process.env.PAYLINK_DOMAIN || 'https://checkout.example.com';
-            const issue = context.issue;
-            
-            const menu = [
-              '## 💳 Payment Plans Available',
-              '',
-              '| Plan | Price | Link |',
-              '|------|-------|------|',
-              `| **Starter** | $10.00 AUD | [Pay Now](${serverUrl}/web/checkout.html?plan=starter) |`,
-              `| **Basic** | $25.00 AUD | [Pay Now](${serverUrl}/web/checkout.html?plan=basic) |`,
-              `| **Pro** | $99.00 AUD | [Pay Now](${serverUrl}/web/checkout.html?plan=pro) |`,
-              '',
-              '### How it works:',
-              '1. Click the "Pay Now" link for your desired plan',
-              '2. Complete payment via PayPal',
-              '3. You will receive your license key via email',
-              '4. Your customer record will be automatically created',
-              '5. Check spam folder if you don\'t see the license email',
-              '',
-              '### What happens after payment:',
-              '✅ License key sent via email',
-              '✅ Customer record created in our system',
-              '✅ GitHub issue created with your details',
-              '✅ Admin notified of new customer',
-              '',
-              '### Questions?',
-              'Reply to this issue if you have any questions.'
-            ].join('\n');
-
-            const comments = await github.rest.issues.listComments({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: issue.number,
-            });
-
-            const menuExists = comments.data.some(c => 
-              c.body && c.body.includes('## 💳 Payment Plans Available')
-            );
-
-            if (menuExists) {
-              console.log('✓ Menu already posted');
-              return;
-            }
-
             try {
-              await github.rest.issues.createComment({
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                issue_number: issue.number,
-                body: menu
+                body: "Your payment request has been received and is being processed."
               });
-              console.log('✅ Payment menu posted');
             } catch (error) {
-              console.error('❌ Error:', error.message);
+              console.log("Error:", error.message);
               throw error;
             }
