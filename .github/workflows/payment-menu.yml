@@ -48,24 +48,25 @@ jobs:
                 return;
               }
               
-              // Use your actual GitHub Pages URL or deployed domain
-              // Replace this with your real domain when deployed
-              const checkoutUrl = 'https://sami9889.github.io/Checkoutv4';
+              // GitHub repository URL for creating payment request issues
+              const repoOwner = context.repo.owner;
+              const repoName = context.repo.repo;
+              const githubUrl = `https://github.com/${repoOwner}/${repoName}/issues/new`;
               
-              // Post payment menu with REAL checkout links
+              // Post payment menu with issue creation links
               const menuBody = `## 💳 Payment Plans Available
 
             Thank you for your interest! Here are our available plans:
 
             | Plan | Price | Duration | Action |
             |------|-------|----------|--------|
-            | **Starter** | $10.00 AUD | 30 days | [Pay Now](${checkoutUrl}/web/checkout.html?plan=starter) |
-            | **Basic** | $25.00 AUD | 90 days | [Pay Now](${checkoutUrl}/web/checkout.html?plan=basic) |
-            | **Pro** | $99.00 AUD | 1 year | [Pay Now](${checkoutUrl}/web/checkout.html?plan=pro) |
+            | **Starter** | $10.00 AUD | 30 days | [Request Payment](${githubUrl}?title=[Payment%20Request]%20Starter%20Plan&body=Plan:%20Starter%20($10.00)%0AEmail:%20%0AName:%20&labels=paylink-request) |
+            | **Basic** | $25.00 AUD | 90 days | [Request Payment](${githubUrl}?title=[Payment%20Request]%20Basic%20Plan&body=Plan:%20Basic%20($25.00)%0AEmail:%20%0AName:%20&labels=paylink-request) |
+            | **Pro** | $99.00 AUD | 1 year | [Request Payment](${githubUrl}?title=[Payment%20Request]%20Pro%20Plan&body=Plan:%20Pro%20($99.00)%0AEmail:%20%0AName:%20&labels=paylink-request) |
 
-            ### 🏦 Alternative: Bank Transfer
+            ### 🏦 Bank Transfer Details
 
-            If you prefer to pay via bank transfer, click here: [Get Payment Code](${checkoutUrl}/web/bank-checkout.html)
+            You can pay directly via bank transfer:
 
             **Bank Details:**
             - **Bank**: Commonwealth Bank (Australia)
