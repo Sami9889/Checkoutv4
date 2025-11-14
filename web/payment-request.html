@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment Request - PayLinkBridge</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    
+    .container {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      max-width: 600px;
+      width: 100%;
+      padding: 40px;
+    }
+    
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    
+    .logo {
+      font-size: 48px;
+      margin-bottom: 10px;
+    }
+    
+    h1 {
+      color: #0070ba;
+      margin-bottom: 10px;
+    }
+    
+    .tagline {
+      color: #666;
+      font-size: 14px;
+    }
+    
+    .plans {
+      display: grid;
+      gap: 15px;
+      margin: 30px 0;
+    }
+    
+    .plan {
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 20px;
+      cursor: pointer;
+      transition: all 0.3s;
+      position: relative;
+    }
+    
+    .plan:hover {
+      border-color: #0070ba;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,112,186,0.2);
+    }
+    
+    .plan.selected {
+      border-color: #0070ba;
+      background: #f0f9ff;
+    }
+    
+    .plan input[type="radio"] {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+    }
+    
+    .plan-name {
+      font-size: 18px;
+      font-weight: 600;
+      color: #003087;
+      margin-bottom: 5px;
+    }
+    
+    .plan-price {
+      font-size: 24px;
+      font-weight: 700;
+      color: #0070ba;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: #333;
+    }
+    
+    input[type="email"],
+    input[type="text"] {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+    
+    input:focus {
+      outline: none;
+      border-color: #0070ba;
+      box-shadow: 0 0 0 3px rgba(0,112,186,0.1);
+    }
+    
+    .btn-primary {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #0070ba, #003087);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0,112,186,0.3);
+    }
+    
+    .info-box {
+      background: #e3f2fd;
+      border-left: 4px solid #0070ba;
+      padding: 15px;
+      border-radius: 6px;
+      margin: 20px 0;
+      font-size: 14px;
+      color: #003087;
+    }
+    
+    .bank-info {
+      background: #f8f8f8;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 15px;
+      margin-top: 20px;
+      font-size: 13px;
+    }
+    
+    .bank-info strong {
+      color: #0070ba;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="logo">💳</div>
+      <h1>Payment Request</h1>
+      <p class="tagline">Create your payment request in 3 simple steps</p>
+    </div>
+    
+    <form id="payment-form">
+      <div class="plans" id="plans-container">
+        <label class="plan selected">
+          <input type="radio" name="plan" value="starter" checked>
+          <div class="plan-name">Starter Plan</div>
+          <div class="plan-price">$10.00 AUD</div>
+          <div style="font-size: 12px; color: #666; margin-top: 5px;">30 days access</div>
+        </label>
+        
+        <label class="plan">
+          <input type="radio" name="plan" value="basic">
+          <div class="plan-name">Basic Plan</div>
+          <div class="plan-price">$25.00 AUD</div>
+          <div style="font-size: 12px; color: #666; margin-top: 5px;">90 days access</div>
+        </label>
+        
+        <label class="plan">
+          <input type="radio" name="plan" value="pro">
+          <div class="plan-name">Pro Plan</div>
+          <div class="plan-price">$99.00 AUD</div>
+          <div style="font-size: 12px; color: #666; margin-top: 5px;">1 year access</div>
+        </label>
+      </div>
+      
+      <div class="form-group">
+        <label for="email">Your Email</label>
+        <input type="email" id="email" required placeholder="your@email.com">
+      </div>
+      
+      <div class="form-group">
+        <label for="name">Full Name</label>
+        <input type="text" id="name" required placeholder="John Doe">
+      </div>
+      
+      <div class="info-box">
+        ℹ️ Clicking "Create Payment Request" will open a GitHub issue with your payment details. The admin will then send you payment instructions.
+      </div>
+      
+      <button type="submit" class="btn-primary">Create Payment Request</button>
+      
+      <div class="bank-info">
+        <strong>💡 Alternative: Direct Bank Transfer</strong><br>
+        <div style="margin-top: 10px; line-height: 1.6;">
+          <strong>Bank:</strong> Commonwealth Bank (Australia)<br>
+          <strong>Account Name:</strong> SAMRATH SINGH<br>
+          <strong>BSB:</strong> 062948<br>
+          <strong>Account:</strong> 4760652<br>
+          <strong>BIC/SWIFT:</strong> CTBAAU2S
+        </div>
+        <div style="margin-top: 10px; font-size: 12px; color: #666;">
+          After transferring, create a payment request above with your transfer details.
+        </div>
+      </div>
+    </form>
+  </div>
+  
+  <script>
+    // Handle plan selection
+    document.querySelectorAll('.plan').forEach(plan => {
+      plan.addEventListener('click', function() {
+        document.querySelectorAll('.plan').forEach(p => p.classList.remove('selected'));
+        this.classList.add('selected');
+        this.querySelector('input[type="radio"]').checked = true;
+      });
+    });
+    
+    // Handle form submission
+    document.getElementById('payment-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const plan = document.querySelector('input[name="plan"]:checked').value;
+      const email = document.getElementById('email').value;
+      const name = document.getElementById('name').value;
+      
+      const planPrices = {
+        starter: '10.00',
+        basic: '25.00',
+        pro: '99.00'
+      };
+      
+      const planNames = {
+        starter: 'Starter',
+        basic: 'Basic',
+        pro: 'Pro'
+      };
+      
+      const amount = planPrices[plan];
+      const planName = planNames[plan];
+      
+      // Create GitHub issue URL with pre-filled template
+      const issueTitle = encodeURIComponent(`[Payment Request] ${planName} Plan - ${name}`);
+      const issueBody = encodeURIComponent(`## Payment Request Details
+
+**Plan:** ${planName} Plan ($${amount} AUD)
+**Email:** ${email}
+**Full Name:** ${name}
+**Date:** ${new Date().toLocaleDateString()}
+
+---
+
+### Payment Information
+- Amount: $${amount} AUD
+- Currency: AUD
+- Plan Duration: ${plan === 'starter' ? '30 days' : plan === 'basic' ? '90 days' : '1 year'}
+
+### Bank Transfer Details (Optional)
+If paying via bank transfer:
+- Bank: Commonwealth Bank (Australia)
+- Account Name: SAMRATH SINGH
+- BSB: 062948
+- Account: 4760652
+- BIC/SWIFT: CTBAAU2S
+
+**Reference:** Include this issue number in your transfer
+
+---
+
+**Next Steps:**
+1. Admin will review this request
+2. You'll receive payment instructions
+3. Complete payment
+4. Receive your license key via email
+
+*This is an automated payment request. Admin will respond shortly.*`);
+      
+      const githubUrl = `https://github.com/Sami9889/Checkoutv4/issues/new?title=${issueTitle}&body=${issueBody}&labels=paylink-request`;
+      
+      // Open GitHub issue creation page
+      window.open(githubUrl, '_blank');
+      
+      // Show confirmation
+      alert('✓ Opening GitHub issue form...\n\nPlease complete the form and submit to create your payment request.');
+    });
+  </script>
+</body>
+</html>
