@@ -3,7 +3,8 @@ import fs from 'fs';
 import path from 'path';
 import { randomToken } from './crypto-utils.js';
 import { sendLicenseEmail, sendPaymentConfirmation, sendAdminNotification } from './email-service.js';
-import { recordCustomer, createGitHubIssue } from './customers.js';
+import { recordCustomer, createInternalIssue } from './customers.js';
+import { getFullBankDetails } from './bank-config.js';
 
 const router = express.Router();
 const DB = './server/db.json';
@@ -11,27 +12,14 @@ const DB = './server/db.json';
 function readDB() { return JSON.parse(fs.readFileSync(DB, 'utf8')); }
 function saveDB(d) { fs.writeFileSync(DB, JSON.stringify(d, null, 2)); }
 
-// Bank account details (from .env)
-const BANK_ACCOUNT = {
-  name: 'SAMRATH SINGH',
-  number: '4760652',
-  bsb: '062948',
-  address: '2 ZUCCOTTI CRES, POINT COOK VIC 3030',
-  swift: 'CTBAAU2S',
-  bank: 'Commonwealth Bank (Australia)'
-};
+const BANK_ACCOUNT = getFullBankDetails();
 
-// Payment plans with bank transfer amounts
 const PLANS = {
   starter: { price: 10.00, name: 'Starter Plan', currency: 'AUD', duration: '30 days' },
   basic: { price: 25.00, name: 'Basic Plan', currency: 'AUD', duration: '90 days' },
   pro: { price: 99.00, name: 'Pro Plan', currency: 'AUD', duration: '1 year' }
 };
 
-/**
- * Create a bank transfer request
- * Returns unique payment code that customer sends via bank transfer
- */
 router.post('/server/create-bank-transfer', async (req, res) => {
   const { email, fullName, plan } = req.body;
 
@@ -47,11 +35,9 @@ router.post('/server/create-bank-transfer', async (req, res) => {
     const db = readDB();
     db.bankTransfers = db.bankTransfers || [];
 
-    // Generate unique payment code (8 chars)
     const paymentCode = 'PAY' + randomToken(5).toUpperCase();
     const amount = PLANS[plan].price;
 
-    // Create transfer record
     const transfer = {
       id: 'TXFR-' + randomToken(6).toUpperCase(),
       paymentCode,
@@ -61,7 +47,7 @@ router.post('/server/create-bank-transfer', async (req, res) => {
       amount,
       currency: PLANS[plan].currency,
       bankAccount: BANK_ACCOUNT,
-      status: 'pending', // pending, completed, verified
+      status: 'pending',
       createdAt: new Date().toISOString(),
       completedAt: null,
       license: null,
@@ -71,7 +57,7 @@ router.post('/server/create-bank-transfer', async (req, res) => {
     db.bankTransfers.push(transfer);
     saveDB(db);
 
-    console.log(`✅ Bank transfer request created: ${paymentCode} - ${fullName} ($${amount})`);
+    console.log(`Bank transfer request created: ${paymentCode} - ${fullName} ($${amount})`);
 
     return res.json({
       success: true,
@@ -92,10 +78,6 @@ router.post('/server/create-bank-transfer', async (req, res) => {
   }
 });
 
-/**
- * Verify and mark a bank transfer as completed
- * Admin verifies the transfer was received and marks as completed
- */
 router.post('/server/verify-bank-transfer', async (req, res) => {
   const { paymentCode, adminPass } = req.body;
 
@@ -112,7 +94,6 @@ router.post('/server/verify-bank-transfer', async (req, res) => {
     db.bankTransfers = db.bankTransfers || [];
     db.licenses = db.licenses || [];
 
-    // Find the transfer
     const transfer = db.bankTransfers.find(t => t.paymentCode === paymentCode);
     if (!transfer) {
       return res.status(404).json({ error: 'Transfer not found: ' + paymentCode });
@@ -122,10 +103,8 @@ router.post('/server/verify-bank-transfer', async (req, res) => {
       return res.status(400).json({ error: 'Transfer already completed' });
     }
 
-    // Generate license
     const license = 'LIC-' + randomToken(6).toUpperCase();
 
-    // Create license record
     const licenseRecord = {
       license,
       paymentCode,
@@ -141,20 +120,15 @@ router.post('/server/verify-bank-transfer', async (req, res) => {
 
     db.licenses.push(licenseRecord);
 
-    // Mark transfer as completed
     transfer.status = 'completed';
     transfer.completedAt = new Date().toISOString();
     transfer.license = license;
 
     saveDB(db);
 
-    // Send license email
     await sendLicenseEmail(transfer.email, license, transfer.plan, transfer.id);
-
-    // Send admin notification
     await sendAdminNotification(transfer.plan, transfer.amount, transfer.email, transfer.id);
 
-    // Record customer
     const customerRecord = await recordCustomer({
       email: transfer.email,
       fullName: transfer.fullName,
@@ -170,14 +144,11 @@ router.post('/server/verify-bank-transfer', async (req, res) => {
     transfer.customerId = customerRecord.id;
     saveDB(db);
 
-    // Create GitHub issue (async)
-    if (process.env.GITHUB_TOKEN) {
-      createGitHubIssue(customerRecord).catch(err =>
-        console.error('GitHub issue creation failed:', err.message)
-      );
-    }
+    createInternalIssue(customerRecord).catch(err =>
+      console.error('Internal issue creation failed:', err.message)
+    );
 
-    console.log(`✅ Bank transfer verified: ${paymentCode} - License: ${license}`);
+    console.log(`Bank transfer verified: ${paymentCode} - License: ${license}`);
 
     return res.json({
       success: true,
@@ -191,9 +162,6 @@ router.post('/server/verify-bank-transfer', async (req, res) => {
   }
 });
 
-/**
- * Get all pending bank transfers (admin)
- */
 router.get('/server/bank-transfers', (req, res) => {
   const pass = req.query.pass || req.headers['x-admin-pass'];
   if (!pass || pass !== process.env.ADMIN_PASS) {
@@ -204,7 +172,6 @@ router.get('/server/bank-transfers', (req, res) => {
     const db = readDB();
     const transfers = db.bankTransfers || [];
 
-    // Group by status
     const pending = transfers.filter(t => t.status === 'pending');
     const completed = transfers.filter(t => t.status === 'completed');
 
@@ -223,9 +190,6 @@ router.get('/server/bank-transfers', (req, res) => {
   }
 });
 
-/**
- * Get transfer details by payment code
- */
 router.get('/server/transfer/:code', (req, res) => {
   const { code } = req.params;
 
@@ -238,7 +202,6 @@ router.get('/server/transfer/:code', (req, res) => {
       return res.status(404).json({ error: 'Transfer not found' });
     }
 
-    // Don't expose email or full name publicly
     const safe = {
       paymentCode: transfer.paymentCode,
       plan: transfer.plan,
@@ -253,32 +216,26 @@ router.get('/server/transfer/:code', (req, res) => {
   }
 });
 
-/**
- * Get bank account details (public)
- */
 router.get('/server/bank-account', (req, res) => {
   return res.json({
-    name: BANK_ACCOUNT.name,
-    number: BANK_ACCOUNT.number,
+    accountName: BANK_ACCOUNT.accountName,
+    accountNumber: BANK_ACCOUNT.accountNumber,
     bsb: BANK_ACCOUNT.bsb,
-    address: BANK_ACCOUNT.address,
-    swift: BANK_ACCOUNT.swift,
+    accountAddress: BANK_ACCOUNT.accountAddress,
+    bicSwift: BANK_ACCOUNT.bicSwift,
     bank: BANK_ACCOUNT.bank,
-    currency: 'AUD'
+    currency: BANK_ACCOUNT.currency
   });
 });
 
-/**
- * Get available plans and prices
- */
 router.get('/server/plans', (req, res) => {
   return res.json({
     plans: PLANS,
     currency: 'AUD',
     bankAccount: {
-      name: BANK_ACCOUNT.name,
+      accountName: BANK_ACCOUNT.accountName,
       bsb: BANK_ACCOUNT.bsb,
-      number: BANK_ACCOUNT.number,
+      accountNumber: BANK_ACCOUNT.accountNumber,
       bank: BANK_ACCOUNT.bank
     }
   });

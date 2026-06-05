@@ -1,7 +1,7 @@
 {
   "name": "paylink-checkout",
-  "version": "1.0.0",
-  "description": "Professional PayPal payment checkout system with GitHub integration",
+  "version": "2.0.0",
+  "description": "Secure bank payment system with AES-256-GCM encryption, direct bank transfers, and GitHub integration for customer tracking",
   "type": "module",
   "main": "server/server.js",
   "scripts": {
@@ -10,10 +10,13 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
-    "paypal",
+    "bank-transfer",
     "payments",
     "checkout",
-    "ecommerce"
+    "encryption",
+    "aes-256-gcm",
+    "secure-payments",
+    "banking"
   ],
   "author": "",
   "license": "MIT",
@@ -25,8 +28,6 @@
     "dotenv": "^16.0.3",
     "js-yaml": "^4.1.0",
     "multer": "^1.4.5-lts.1",
-    "bcrypt": "^5.1.0",
-    "node-fetch": "^2.6.11",
-    "nodemailer": "^6.9.7"
+    "bcrypt": "^5.1.0"
   }
 }

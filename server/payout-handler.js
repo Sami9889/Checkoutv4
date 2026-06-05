@@ -1,14 +1,6 @@
-import fetch from 'node-fetch';
+import { getFullBankDetails } from './bank-config.js';
 
-// Your bank account configuration
-const BANK_DETAILS = {
-  accountName: 'SAMRATH SINGH',
-  accountNumber: '4760 6522',
-  bsb: '062948',
-  bicSwift: 'CTBAAU2S',
-  bank: 'Commonwealth Bank',
-  accountAddress: '2 ZUCCOTTI CRES, POINT COOK VIC 3030'
-};
+const BANK_DETAILS = getFullBankDetails();
 
 // Payment processing and payout handler
 export async function processPayment(paymentData) {

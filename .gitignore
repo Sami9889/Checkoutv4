@@ -8,8 +8,13 @@ node_modules/
 package-lock.json
 yarn.lock
 
-# Database
+# Database and Sensitive Files
 server/db.json
+server/customers.json
+server/emails.json
+server/audit-log.json
+server/sessions.json
+server/admin-attempts.json
 server/uploads/
 
 # Logs

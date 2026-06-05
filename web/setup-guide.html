@@ -245,32 +245,19 @@
     <div class="guide-content">
       <!-- Bank Account Section -->
       <div class="section">
-        <h2>💳 Your Bank Account Details</h2>
+        <h2>💳 Bank Account Configuration</h2>
         <div class="bank-info">
           <div class="bank-info-row">
-            <span class="bank-label">Account Owner:</span>
-            <span class="bank-value">SAMRATH SINGH</span>
+            <span class="bank-label">Configuration:</span>
+            <span class="bank-value">Set in environment variables</span>
           </div>
           <div class="bank-info-row">
-            <span class="bank-label">Bank:</span>
-            <span class="bank-value">Commonwealth Bank (Australia)</span>
+            <span class="bank-label">Variables:</span>
+            <span class="bank-value">BANK_ACCOUNT_NAME, BANK_BSB, BANK_ACCOUNT_NUMBER, BANK_BIC_SWIFT, BANK_ACCOUNT_ADDRESS</span>
           </div>
-          <div class="bank-info-row">
-            <span class="bank-label">Account Number:</span>
-            <span class="bank-value">4760652</span>
-          </div>
-          <div class="bank-info-row">
-            <span class="bank-label">BSB:</span>
-            <span class="bank-value">062948</span>
-          </div>
-          <div class="bank-info-row">
-            <span class="bank-label">Address:</span>
-            <span class="bank-value">2 ZUCCOTTI CRES, POINT COOK VIC 3030</span>
-          </div>
-          <div class="bank-info-row">
-            <span class="bank-label">BIC/SWIFT Code:</span>
-            <span class="bank-value">CTBAAU2S</span>
-          </div>
+        </div>
+        <div class="warning-box">
+          ⚠️ <strong>Security Note:</strong> Bank account details are now configured via environment variables for security. Never commit banking information to source control.
         </div>
       </div>
 
@@ -280,50 +267,35 @@
         
         <div class="step-box">
           <div class="step-number">1</div>
-          <div class="step-title">Get PayPal Credentials</div>
-          <p>Visit <a href="https://developer.paypal.com" target="_blank">developer.paypal.com</a> and sign in with your PayPal business account.</p>
-          <p>Navigate to <strong>Apps & Credentials</strong> and copy your:</p>
-          <ul class="checklist">
-            <li>Client ID</li>
-            <li>Client Secret</li>
-          </ul>
+          <div class="step-title">Configure Bank Account</div>
+          <p>Set your bank account details in the <code>.env</code> file:</p>
+          <div class="code-block"><code>BANK_ACCOUNT_NAME=Your Account Name
+BANK_BSB=123456
+BANK_ACCOUNT_NUMBER=12345678
+BANK_BIC_SWIFT=SWIFTCODE
+BANK_ACCOUNT_ADDRESS=Your Address
+BANK_NAME=Your Bank Name</code></div>
         </div>
 
         <div class="step-box">
           <div class="step-number">2</div>
-          <div class="step-title">Update .env File</div>
-          <p>Edit the <code>.env</code> file in your project root:</p>
-          <div class="code-block"><code>PAYPAL_CLIENT_ID=YOUR_CLIENT_ID_HERE
-PAYPAL_SECRET=YOUR_SECRET_HERE
-PAYPAL_PAYOUT_EMAIL=your-business@paypal.com
-PAYPAL_ENV=sandbox</code></div>
-          <p style="font-size: 12px; color: #666; margin-top: 10px;">Replace with your actual credentials from PayPal Dashboard</p>
-        </div>
-
-        <div class="step-box">
-          <div class="step-number">3</div>
-          <div class="step-title">Configure Email Delivery</div>
-          <p>For sending license keys via email, configure SMTP (Gmail recommended):</p>
-          <div class="code-block"><code>SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USER=your_email@gmail.com
-SMTP_PASS=your_16_char_app_password
-SMTP_FROM=noreply@yourdomain.com</code></div>
+          <div class="step-title">Set Encryption Key</div>
+          <p>Generate and set a secure master encryption key:</p>
+          <div class="code-block"><code>MASTER_SECRET_KEY=generate_a_secure_random_key_here</code></div>
           <div class="warning-box">
-            ⚠️ <strong>Gmail users:</strong> Use a 16-character App Password, not your regular password.
-            <a href="https://myaccount.google.com/apppasswords" target="_blank">Get App Password</a>
+            ⚠️ <strong>Important:</strong> Use a cryptographically secure random string (32+ characters). Never commit this to source control.
           </div>
         </div>
 
         <div class="step-box">
-          <div class="step-number">4</div>
+          <div class="step-number">3</div>
           <div class="step-title">Set Admin Credentials</div>
           <div class="code-block"><code>ADMIN_PASS=create_a_strong_password
 ADMIN_EMAIL=your_email@example.com</code></div>
         </div>
 
         <div class="step-box">
-          <div class="step-number">5</div>
+          <div class="step-number">4</div>
           <div class="step-title">Restart the Server</div>
           <div class="code-block"><code>npm install
 npm start</code></div>
