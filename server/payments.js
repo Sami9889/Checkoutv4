@@ -3,7 +3,7 @@ import fs from 'fs';
 import { randomToken } from './crypto-utils.js';
 import { calculatePayout } from './bank-config.js';
 import { sendLicenseEmail, sendPaymentConfirmation, sendAdminNotification } from './email-service.js';
-import { recordCustomer, createGitHubIssue } from './customers.js';
+import { recordCustomer, createInternalIssue } from './customers.js';
 
 const router = express.Router();
 const DB = './server/db.json';
@@ -80,11 +80,10 @@ router.post('/server/confirm-bank-transfer', async (req, res) => {
 
     console.log(`Bank transfer recorded: ${customerRecord.id}`);
 
-    if (process.env.GITHUB_TOKEN) {
-      createGitHubIssue(customerRecord).catch(err =>
-        console.error('GitHub issue creation failed:', err.message)
-      );
-    }
+    // Create internal issue for tracking (no external APIs)
+    createInternalIssue(customerRecord).catch(err =>
+      console.error('Internal issue creation failed:', err.message)
+    );
 
     return res.json({
       success: true,

@@ -4,7 +4,7 @@ import path from 'path';
 import { randomToken } from './crypto-utils.js';
 import { sendLicenseEmail, sendPaymentConfirmation, sendAdminNotification } from './email-service.js';
 import { recordCustomer, createInternalIssue } from './customers.js';
-import { getFullBankDetails } from './bank-config.js';
+import { getFullBankDetailsSync } from './bank-config.js';
 
 const router = express.Router();
 const DB = './server/db.json';
@@ -12,7 +12,13 @@ const DB = './server/db.json';
 function readDB() { return JSON.parse(fs.readFileSync(DB, 'utf8')); }
 function saveDB(d) { fs.writeFileSync(DB, JSON.stringify(d, null, 2)); }
 
-const BANK_ACCOUNT = getFullBankDetails();
+// Get cached bank details (populated during server initialization)
+let BANK_ACCOUNT = getFullBankDetailsSync();
+
+// Update bank account if needed (in case it changes after initialization)
+export function updateBankAccount() {
+  BANK_ACCOUNT = getFullBankDetailsSync();
+}
 
 const PLANS = {
   starter: { price: 10.00, name: 'Starter Plan', currency: 'AUD', duration: '30 days' },

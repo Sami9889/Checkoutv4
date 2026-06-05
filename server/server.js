@@ -14,6 +14,8 @@ import payoutAdminRouter from './payout-admin.js';
 import customersRouter from './customers.js';
 import { getEmailHistory, getEmailStats } from './email-service.js';
 import { createAuditLog } from './customers.js';
+import { initializeABN, getABN, maskABN } from './abn-config.js';
+import { getMaskedBusinessConfig } from './bank-config.js';
 
 dotenv.config();
 const app = express();
@@ -243,6 +245,23 @@ app.get('/server/config', (req,res)=> {
   });
 });
 
+// Business Configuration Endpoint
+app.get('/server/config/business', async (req, res) => {
+  try {
+    const config = await getMaskedBusinessConfig();
+    res.json({
+      success: true,
+      data: config
+    });
+  } catch (error) {
+    console.error('[Config Endpoint] Error:', error.message);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch business configuration'
+    });
+  }
+});
+
 // Admin login endpoint - POST with password in body
 app.post('/server/admin/login', async (req, res) => {
   const ip = req.ip || req.connection.remoteAddress;
@@ -410,7 +429,14 @@ app.use('/', payoutAdminRouter);
 app.use('/', customersRouter);
 
 const PORT = process.env.PORT || CFG.port || 4000;
-app.listen(PORT, () => {
+
+// Initialize ABN configuration on startup
+await initializeABN();
+
+app.listen(PORT, async () => {
+  const abn = getABN();
+  const maskedAbn = maskABN();
+
   console.log(`
 PayLinkBridge v3.0.0 - SECURED PRODUCTION BANKING SYSTEM
 
@@ -420,7 +446,11 @@ Encryption: AES-256-GCM ${process.env.MASTER_SECRET_KEY ? 'ENABLED' : 'NOT CONFI
 Email System: Internal Queue (NO EXTERNAL SMTP)
 GitHub Integration: REMOVED
 External APIs: NONE
-Bank Account: ${process.env.BANK_ACCOUNT_NAME || 'NOT_CONFIGURED'}
+
+Business Configuration:
+- Business Name: ${process.env.BUSINESS_NAME || 'Sami-S'}
+- ABN: ${maskedAbn}
+- Admin Email: ${process.env.ADMIN_EMAIL || 'hello@sami-s.dev'}
 
 Security Features:
 - Session-based admin authentication
@@ -430,7 +460,10 @@ Security Features:
 - No external API calls
 - All sensitive data encrypted at rest
 
-${!process.env.MASTER_SECRET_KEY ? 'WARNING: MASTER_SECRET_KEY not set\n' : ''}${!process.env.BANK_ACCOUNT_NUMBER ? 'WARNING: Bank account details not configured\n' : ''}Admin Login: POST /server/admin/login with { password: "YOUR_PASSWORD" }
+${!process.env.MASTER_SECRET_KEY ? 'WARNING: MASTER_SECRET_KEY not set\n' : ''}Admin Login: POST /server/admin/login with { password: "YOUR_PASSWORD" }
+Config Endpoint:
+- GET /server/config/business - View masked business config
+
 Ready to accept secure bank transfers
   `);
 });

@@ -323,7 +323,7 @@
       let html = '';
       
       for (const [key, plan] of Object.entries(PLANS)) {
-        const features = plan.features.map(f => `<li>✓ ${f}</li>`).join('');
+        const features = plan.features.map(f => `<li> ${f}</li>`).join('');
         html += `
           <label class="plan-card" data-plan="${key}">
             <input type="radio" name="plan" value="${key}" ${key === 'basic' ? 'checked' : ''}>
@@ -366,7 +366,7 @@
       const amount = data.amount.toFixed(2);
 
       successDiv.innerHTML = `
-        <h2 style="margin-bottom: 20px; color: #155724;">✓ Payment Code Generated</h2>
+        <h2 style="margin-bottom: 20px; color: #155724;"> Payment Code Generated</h2>
         
         <div class="payment-code-display">
           <div class="payment-code-label">Your Payment Code</div>
@@ -407,7 +407,7 @@
         </div>
 
         <div style="background: #e3f2fd; border-left: 4px solid #0070ba; padding: 20px; border-radius: 6px; margin: 20px 0;">
-          <h3 style="color: #0070ba; margin-bottom: 15px;">📝 Transfer Instructions</h3>
+          <h3 style="color: #0070ba; margin-bottom: 15px;"> Transfer Instructions</h3>
           <ol style="margin-left: 20px; color: #333; line-height: 1.8;">
             <li><strong>Use Payment Code:</strong> Include "${data.paymentCode}" in the transfer reference/description</li>
             <li><strong>Amount:</strong> Transfer exactly <strong>$${amount} AUD</strong></li>
@@ -434,7 +434,7 @@
       navigator.clipboard.writeText(code).then(() => {
         const btn = event.target;
         const original = btn.textContent;
-        btn.textContent = '✓ Copied!';
+        btn.textContent = ' Copied!';
         setTimeout(() => {
           btn.textContent = original;
         }, 2000);
@@ -450,12 +450,12 @@
       const fullName = document.getElementById('name').value.trim();
 
       if (!email || !fullName || !plan) {
-        showError('⚠️ Please fill in all fields');
+        showError(' Please fill in all fields');
         return;
       }
 
       try {
-        console.log('📦 Creating bank transfer request...');
+        console.log(' Creating bank transfer request...');
         
         const response = await fetch('/server/create-bank-transfer', {
           method: 'POST',
@@ -475,14 +475,14 @@
         const result = await response.json();
         
         if (result.success) {
-          console.log('✅ Payment code generated:', result.paymentCode);
+          console.log(' Payment code generated:', result.paymentCode);
           showSuccess(result);
         } else {
           throw new Error(result.error || 'Failed to generate payment code');
         }
       } catch (error) {
-        console.error('❌ Error:', error);
-        showError('❌ ' + error.message);
+        console.error(' Error:', error);
+        showError(' ' + error.message);
       }
     });
 

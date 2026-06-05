@@ -309,7 +309,7 @@
 
       <!-- Completed Transfers -->
       <div class="section">
-        <h2>✓ Verified Transfers</h2>
+        <h2> Verified Transfers</h2>
         <div id="completed-list">
           <p style="color: #999;">No completed transfers yet</p>
         </div>
@@ -357,7 +357,7 @@
 
     function showLoginError(message) {
       const elem = document.getElementById('login-error');
-      elem.textContent = '❌ ' + message;
+      elem.textContent = ' ' + message;
       elem.style.display = 'block';
     }
 
@@ -404,7 +404,7 @@
         actions = `
           <div class="transfer-actions">
             <button class="btn-verify" onclick="verifyTransfer('${transfer.paymentCode}')">
-              ✓ Verify Payment
+               Verify Payment
             </button>
           </div>
         `;
@@ -469,16 +469,16 @@
 
         const result = await response.json();
         
-        showSuccess(`✓ Transfer verified! License: ${result.license}`);
+        showSuccess(` Transfer verified! License: ${result.license}`);
         await loadTransfers();
       } catch (error) {
-        showError('❌ ' + error.message);
+        showError(' ' + error.message);
       }
     }
 
     function copyCode(code) {
       navigator.clipboard.writeText(code).then(() => {
-        alert('✓ Copied: ' + code);
+        alert(' Copied: ' + code);
       });
     }
 

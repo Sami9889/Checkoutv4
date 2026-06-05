@@ -170,7 +170,7 @@
     }
     
     .checklist li:before {
-      content: "✓ ";
+      content: " ";
       color: #28a745;
       font-weight: 600;
       margin-right: 10px;
@@ -257,7 +257,7 @@
           </div>
         </div>
         <div class="warning-box">
-          ⚠️ <strong>Security Note:</strong> Bank account details are now configured via environment variables for security. Never commit banking information to source control.
+           <strong>Security Note:</strong> Bank account details are now configured via environment variables for security. Never commit banking information to source control.
         </div>
       </div>
 
@@ -283,7 +283,7 @@ BANK_NAME=Your Bank Name</code></div>
           <p>Generate and set a secure master encryption key:</p>
           <div class="code-block"><code>MASTER_SECRET_KEY=generate_a_secure_random_key_here</code></div>
           <div class="warning-box">
-            ⚠️ <strong>Important:</strong> Use a cryptographically secure random string (32+ characters). Never commit this to source control.
+             <strong>Important:</strong> Use a cryptographically secure random string (32+ characters). Never commit this to source control.
           </div>
         </div>
 
@@ -300,7 +300,7 @@ ADMIN_EMAIL=your_email@example.com</code></div>
           <div class="code-block"><code>npm install
 npm start</code></div>
           <div class="success-box">
-            ✅ Server should start on http://localhost:4000
+             Server should start on http://localhost:4000
           </div>
         </div>
       </div>
@@ -381,7 +381,7 @@ npm start</code></div>
       <div class="section">
         <h2>🔧 Troubleshooting</h2>
         
-        <h3>❌ "PayPal Not Configured" Error</h3>
+        <h3> "PayPal Not Configured" Error</h3>
         <ul class="checklist">
           <li>Check PAYPAL_CLIENT_ID is set in .env</li>
           <li>Make sure it doesn't contain "YOUR_" or placeholder text</li>
@@ -389,14 +389,14 @@ npm start</code></div>
           <li>Check server logs for errors</li>
         </ul>
         
-        <h3>❌ Checkout Page Shows "example.com"</h3>
+        <h3> Checkout Page Shows "example.com"</h3>
         <ul class="checklist">
           <li>Visit /server/config to verify client ID is being returned</li>
           <li>Check browser console (F12) for error messages</li>
           <li>Verify PAYPAL_CLIENT_ID is not empty in .env</li>
         </ul>
         
-        <h3>❌ License Email Not Received</h3>
+        <h3> License Email Not Received</h3>
         <ul class="checklist">
           <li>Check SMTP_USER and SMTP_PASS in .env</li>
           <li>Gmail users: verify 16-character app password</li>
@@ -404,7 +404,7 @@ npm start</code></div>
           <li>Check server logs for email errors</li>
         </ul>
         
-        <h3>❌ Payout Not Processing</h3>
+        <h3> Payout Not Processing</h3>
         <ul class="checklist">
           <li>Verify PAYPAL_PAYOUT_EMAIL is set correctly</li>
           <li>Check PayPal API credentials are valid</li>

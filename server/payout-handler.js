@@ -1,6 +1,12 @@
-import { getFullBankDetails } from './bank-config.js';
+import { getFullBankDetailsSync } from './bank-config.js';
 
-const BANK_DETAILS = getFullBankDetails();
+// Get cached bank details (populated during server initialization)
+let BANK_DETAILS = getFullBankDetailsSync();
+
+// Update bank details if needed (in case it changes after initialization)
+export function updateBankDetails() {
+  BANK_DETAILS = getFullBankDetailsSync();
+}
 
 // Payment processing and payout handler
 export async function processPayment(paymentData) {
